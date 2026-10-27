@@ -1,190 +1,192 @@
-# Спецификация поведения Wipeout Fusion (PAL)
+# Behaviour specification of Wipeout Fusion (PAL)
 
-Это **чистая часть** проекта ReFusion: описание того, *что* делает игра — правила, формулы, константы,
-форматы файлов. По этим документам пишется собственная реализация. Порядок работы, роли и что можно/нельзя
-чистой команде — в [`../process/README.md`](../process/README.md). Прочитайте его до начала работы.
+Русская версия: [docs/ru/spec/README.md](../ru/spec/README.md)
 
-## Правила для этой папки
-- Здесь **нет** адресов, дизассемблера, декомпилированного кода, внутренних имён функций, переменных и полей оригинала.
-- Имена берутся из **данных игры** (ключи `SHIPS.INI`, `WEAPONSTATS.INI`, имена материалов трасс), из **текста на экране**
-  или вводятся описательно (`щит`, `прогресс круга`). Все термины — в [глоссарии](00_glossary.md).
-- Числа — это **наблюдаемое поведение и параметры**: константы, пороги, длительности, формулы.
-- Доказательства (как правило было установлено) хранятся у грязной команды отдельно и чистой команде **недоступны**.
-  Если правила не хватает или оно неясно — вопрос в [QUESTIONS.md](QUESTIONS.md).
-- Любое изменение этой папки проходит [чек-лист](../process/review_checklist.md) и `python docs/process/check_spec.py`.
+This is the **clean part** of the ReFusion project: a description of *what* the game does — rules, formulas, constants,
+file formats. Your own implementation is written from these documents. The order of work, roles and what the clean team may and may not do
+are in [`../process/README.md`](../process/README.md). Read it before starting work.
 
-## Что покрывает спецификация
-**Входит:** игровая логика — ход гонки, физика кораблей, правила и подсчёт очков, ИИ, оружие, прогресс игрока,
-форматы файлов данных и сохранений.
-**Не входит:** рендер, звук, видео, внешний вид меню и HUD. Для них даны только форматы файлов (07) — реализация
-делает их по-своему. Если что-то из этого влияет на логику (например, переход между экранами), это описано явно.
+## Rules for this folder
+- There are **no** addresses, disassembly, decompiled code, or internal names of the original's functions, variables and fields here.
+- Names are taken from the **game data** (keys of `SHIPS.INI`, `WEAPONSTATS.INI`, track material names), from **on-screen text**
+  or introduced descriptively (`shield`, `lap progress`). All terms are in the [glossary](00_glossary.md).
+- Numbers are **observable behaviour and parameters**: constants, thresholds, durations, formulas.
+- The evidence (how a rule was established) is kept by the dirty team separately and is **not available** to the clean team.
+  If a rule is missing or unclear — ask in [QUESTIONS.md](QUESTIONS.md).
+- Any change to this folder passes the [checklist](../process/review_checklist.md) and `python docs/process/check_spec.py`.
 
-**Данные игры** реализация не содержит: она читает файлы с копии игры пользователя. Числа из файлов данных
-приводятся здесь только как примеры и контрольные значения.
+## What the specification covers
+**Included:** game logic — race flow, ship physics, rules and scoring, AI, weapons, player progress,
+data file and save formats.
+**Not included:** rendering, sound, video, the look of menus and HUD. For these only file formats (07) are given — the implementation
+does them its own way. If any of this affects logic (for example, a transition between screens), it is described explicitly.
 
-## ID правил и уровень доказанности
-У каждого правила есть **ID** (`PHY-6`, `WPN-12` …) — на него ссылаются вопросы, тесты и журнал изменений.
-ID не переиспользуются: удалённое правило помечается «снято», а не исчезает молча.
+The implementation does not contain **game data**: it reads files from the user's copy of the game. Numbers from data files
+are given here only as examples and reference values.
 
-Спецификация описывает **PAL-версию** (SCES-50005). Наблюдения на американской версии (NTSC-U) принимаются как [✓]
-только для фактов, которые не зависят от частоты кадров и хода часов: порядок мест, условия, проценты, уровни,
-надписи. Длительности и моменты времени берутся только из PAL (кадр 20 мс, GEN-1). Отличия версий — OQ-46.
+## Rule IDs and evidence level
+Every rule has an **ID** (`PHY-6`, `WPN-12` …) — questions, tests and the change log refer to it.
+IDs are not reused: a deleted rule is marked "withdrawn" and does not disappear silently.
 
-| метка | значит | как к ней относиться в реализации |
+The specification describes the **PAL version** (SCES-50005). Observations on the American version (NTSC-U) are accepted as [✓]
+only for facts that do not depend on frame rate or clock progress: order of places, conditions, percentages, levels,
+captions. Durations and moments in time are taken only from PAL (20 ms frame, GEN-1). Differences between versions — OQ-46.
+
+| label | meaning | how to treat it in the implementation |
 |---|---|---|
-| **[✓]** | подтверждено **поведением** игры (покадровые наблюдения), числа совпали | реализовать как есть |
-| **[✓ наблюдение игрока, PAL]** | подтверждено тем, что игрок видел и измерил, играя | реализовать как есть |
-| **[✓ изменённая игра, PAL]** | формула проверена на изменённой копии игры: подтверждает формулу, но не обязательно поведение исходного режима целиком | реализовать как есть; при расхождении с игрой — вопрос |
-| **[код]** | установлено, но поведением пока не проверено | реализовать как есть; при расхождении с игрой — вопрос |
-| **[?]** | гипотеза | реализовать как временное решение, изолированно, чтобы легко заменить |
+| **[✓]** | confirmed by game **behaviour** (frame-by-frame observations), numbers matched | implement as is |
+| **[✓ player observation, PAL]** | confirmed by what the player saw and measured while playing | implement as is |
+| **[✓ modified game, PAL]** | formula verified on a modified copy of the game: confirms the formula, but not necessarily the behaviour of the original mode as a whole | implement as is; if it diverges from the game — ask a question |
+| **[code]** | established, but not yet verified by behaviour | implement as is; if it diverges from the game — ask a question |
+| **[?]** | hypothesis | implement as a temporary solution, isolated so that it is easy to replace |
 
-## Общие соглашения
+## General conventions
 
-### GEN-1. Время [✓]
-Игра живёт в своих часах: кадр = **20 мс** (PAL, 50 Гц); реальное время не измеряется. Если кадр не успевает,
-игра замедляется, а не пропускает шаги. Физика — **2 подшага по 0.01 с** на кадр (100 Гц), см. PHY-1.
-Время хранится одновременно как целые миллисекунды и как секунды с плавающей точкой; пороги старта и таймеры
-кругов сравниваются с этими значениями.
+### GEN-1. Time [✓]
+The game lives in its own clock: frame = **20 ms** (PAL, 50 Hz); real time is not measured. If a frame is not ready in time,
+the game slows down rather than skipping steps. Physics is **2 substeps of 0.01 s** per frame (100 Hz), see PHY-1.
+Time is stored both as integer milliseconds and as floating-point seconds; start thresholds and lap timers
+are compared with these values.
 
-### GEN-2. Единицы длины [✓]
-Единицы мира трассы. Ось **Y направлена вверх**.
+### GEN-2. Length units [✓]
+Track world units. The **Y axis points up**.
 
-### GEN-3. Скорость [✓]
-Вектор скорости — единиц/с. На спидометре `|v| × 3.6` («км/ч»). Параметры скорости в `SHIPS.INI`
-(`maxspeed` и др.) заданы в тех же «км/ч»; в формулах тяги они переводятся обратно делением на 3.6.
+### GEN-3. Speed [✓]
+The velocity vector is in units/s. On the speedometer `|v| × 3.6` ("km/h"). Speed parameters in `SHIPS.INI`
+(`maxspeed` and others) are given in the same "km/h"; in the thrust formulas they are converted back by dividing by 3.6.
 
-### GEN-4. Случайность [код]
-Один общий генератор — линейный конгруэнтный, тот же, что в примере из стандарта языка C:
-`seed = (seed · 1103515245 + 12345) mod 2^32`, результат — `seed mod 2^31` (диапазон `[0, 2^31)`).
-Случайное число `[0, 1)` = `результат / 2^31`. Засев перед гонкой — FLOW-5.
-Детерминизм обязателен: при одинаковом вводе гонка воспроизводится; порядок вызовов генератора важен.
-Контрольные значения — TC-1.
+### GEN-4. Randomness [code]
+One shared generator — a linear congruential one, the same as in the example from the C language standard:
+`seed = (seed · 1103515245 + 12345) mod 2^32`, the result is `seed mod 2^31` (range `[0, 2^31)`).
+A random number `[0, 1)` = `result / 2^31`. Seeding before a race — FLOW-5.
+Determinism is mandatory: with identical input a race is reproduced; the order of generator calls matters.
+Reference values — TC-1.
 
-### GEN-5. Индексы трасс [✓]
-Окружение `env` 0–7: florion_height, mandrashee, cubiss_float, alca_vexus, vohl_square, temtesh_bay, katmoda_12,
-devilia. Раскладка `circuit` 0–5: 1F, 1R, 2F, 2R, 3F, 3R. **Код трассы** = `env·6 + circuit` (0–47).
-У devilia есть только раскладки F (коды 42, 44, 46); всего 45 трасс.
+### GEN-5. Track indices [✓]
+Environment `env` 0–7: florion_height, mandrashee, cubiss_float, alca_vexus, vohl_square, temtesh_bay, katmoda_12,
+devilia. Layout `circuit` 0–5: 1F, 1R, 2F, 2R, 3F, 3R. **Track code** = `env·6 + circuit` (0–47).
+devilia has only F layouts (codes 42, 44, 46); 45 tracks in total.
 
-### GEN-6. Команды и слоты [✓]
-Номера команд 0–7 и слот корабля `команда·2 + пилот` — см. SHIP-1, SHIP-2. Эти номера используются в файлах
-данных и сохранении, поэтому они фиксированы.
+### GEN-6. Teams and slots [✓]
+Team numbers 0–7 and the ship slot `team·2 + pilot` — see SHIP-1, SHIP-2. These numbers are used in the data
+files and the save, so they are fixed.
 
-### GEN-7. Американская версия (NTSC-U) [код; часы и путь — ✓]
-Спецификация описывает PAL. Американская версия — **другая сборка**, а не та же игра с другой частотой экрана.
-Реализация, которая хочет вести себя как PAL, эти отличия **не воспроизводит**; они нужны, чтобы правильно
-читать наблюдения, сделанные на US-версии.
-- **Кадр** — 1/60 с. Часы игры прибавляют 16, 16, 18 мс по кругу (в среднем 16.67 мс), поэтому секунды часов —
-  реальные секунды. [✓ запись: шаги 16 и 18 мс в отношении 2:1]
-- **Физика** — по-прежнему 2 подшага за кадр, то есть 120 подшагов в секунду; шаг подшага 0.0083 с (не 1/120).
-  Путь за секунду при той же скорости — 0.996 от PAL (120 · 0.0083). [✓ запись: путь / (скорость · время) в обеих
-  версиях совпал с точностью 0.1 %]
-- **Импульсы за подшаг не пересчитаны** (тяга, подвеска, скатывание со склонов — те же формулы и те же параметры
-  кораблей, PHY-10): поэтому ускорение, жёсткость и гашение подвески за секунду в US-версии **примерно в 1.2 раза
-  больше**. Максимальная скорость та же. [✓ замер: один и тот же корабль без улучшений, Time Trial, газ с
-  места, обе версии — разгон 300→800 км/ч в US быстрее в 1.15–1.3 раза (в среднем 1.2); стартовый рывок даёт ту же
-  скорость за кадр, то есть в US он короче по времени]
-- Таймеры физики, ИИ и настроения пилотов пересчитаны на 60 Гц (часть — точно ×5/6, часть — ×0.83). **Скорость
-  движения** части эффектов оружия за кадр уменьшена ×0.8 (у Flamer, Grenades, Plasma Bolt — ×5/6), поэтому
-  некоторые из них в US-версии движутся на 4 % медленнее за секунду. Одна составляющая физики корабля изменена
-  заметно сильнее (коэффициент меньше в 6 раз); что она означает — OQ-46.
-- **Не всё пересчитано.** Таймер «wrong way» (RACE-6) остался в кадрах — в US 2.33 / 0.33 с вместо 2.8 / 0.4 с;
-  счётчик лавы (PHY-21) остался в подшагах — его пороги наступают в 1.2 раза раньше. Статистика профиля «время в
-  гонках» и один из таймеров HUD считают 16 мс за кадр — отстают от реального времени на 4 %.
-- **Таймеры оружия** (время жизни ракет и мин, длительность эффектов, перезарядка) пересчитаны ×1.2 — за секунду
-  те же, что в PAL. (Не путать со скоростью движения эффектов выше.)
-- **ИИ** думает за каждый корабль **через кадр** (30 раз в секунду, чётные и нечётные корабли по очереди), в PAL —
-  каждый кадр (50 раз в секунду). Решение «стрелять или нет» у ботов немного изменено, а после применения Quake
-  любым ботом остальные не применяют его **15 с** (в PAL — 5 с, AI-2).
-- **Оружейная площадка** после подбора не выдаёт оружие **1 с** (в PAL — 0.5 с, WPN-3).
-- **Столкновения со стенами** переписаны: проверяются для каждого корабля на каждом подшаге (в PAL — только в первом,
-  PHY-13), сила отскока за одно касание вдвое меньше. Точное поведение в US — не разбиралось.
-- **Заезды на обеих версиях** (одна лига из 5 гонок, один и тот же корабль с теми же улучшениями, один игрок)
-  [✓ наблюдение игрока, PAL и US]:
-  - **Скольжение.** В US корабль меньше скользит боком: угол между носом и направлением движения на скорости в
-    среднем на ~20 % меньше на всех пяти трассах (медиана 4.2–6.2° против 5.2–7.4°); скорость поворота при той же
-    команде рулём почти та же.
-  - **Оружие на площадках.** Все корабли берут его на ~20 % реже (2.4–4.6 против 3.2–6.0 подборов на корабль в
-    минуту) — согласуется с площадкой, которая «молчит» дольше.
-  - **Ошибка US-версии.** На Alca Vexus 2R в US корабль игрока на подъёме за полсекунды разогнало до ~11 000 км/ч и
-    выбросило за трассу (один случай). В PAL на том же месте за три круга этого не было; ещё 5 повторов того же
-    момента гонки в PAL — автопилот, газ прямо, с подруливанием влево и вправо, накатом — тоже не дали такого
-    [✓ повторные прогоны того же момента гонки]. Это ошибка US-версии (решение проекта): в порту не
-    воспроизводится и не разбирается; эталон — PAL.
-  - **Стены и тормоза.** Отскок от стены в US стоит меньше скорости (на 4 трассах из 4, где отскоки были в обеих
-    версиях, в среднем на ~25 %); воздушные тормоза игрок в PAL держал 15–26 % времени гонки, в US — 11–19 % (на двух
-    трассах одинаково).
-  - **Впечатление игрока.** PAL — «скользящее» управление, ощущение тяжёлого аппарата; в поворот надо входить
-    заранее, сложные связки (например, на Mandrashee) требуют техники и почти постоянных воздушных тормозов; на
-    узких местах корабль может «скакать» между стенами, стены сильнее откидывают и сбивают скорость. US — нос
-    слушается лучше, вход в поворот предсказуемее, тормоза нужны в основном, чтобы резче закинуть корабль в
-    поворот; стены мягче; гонки спокойнее (меньше оружия, соперники менее напористы). Для реализации, которая
-    повторяет PAL, это и есть ориентир «на ощупь».
-- Чит-код ускорения увеличивает скорость корабля игрока в 2 раза (в PAL — в 10 раз).
-- «Призрак» Time Trial хранит 1080 записей — те же 3 минуты при 60 Гц (RACE-15).
-- Картинка 448 строк вместо 512; все экранные координаты пересчитаны. Новые эффекты частиц у оружия и трасс.
-- **Данные:** параметры кораблей — те же. Огнемёт (Flamer) в US-версии наносит больше урона (настройки урона
-  0.4 / 0.1 → 0.8 / 0.5, WPN). В одном челлендже на время круга (лига 3, гонка 3, Cubiss Float 2F) пороги медалей
-  мягче на 2 с (85 / 80 / 75 вместо 83 / 78 / 73). **Геометрия трасс** Alca Vexus, Katmoda 12 и Temtesh Bay изменена
-  (все 6 раскладок каждой), у Vohl Square — только данные видимости; Florion Height, Mandrashee, Cubiss Float и
-  Devilia — те же файлы. Состав файлов почти одинаков (PAL 3280, US 3293) [✓ файлы]: только в PAL — ролик выбора языка
-  и анимация летающих машин над Katmoda 12 (3 модели и текстура: в US их нет); только в US — оставленные копии старых
-  трасс (18 файлов, игрой не используются). **Табло стартовой прямой** в обеих версиях одинаковое: те же 5 экранов
-  (HOLD, READY, GO, FINAL, FINISH) и те же картинки; файлы отличаются лишь служебными байтами и путём исходника.
+### GEN-7. American version (NTSC-U) [code; clock and distance — ✓]
+The specification describes PAL. The American version is a **different build**, not the same game with a different display frequency.
+An implementation that wants to behave like PAL does **not reproduce** these differences; they are needed to read
+observations made on the US version correctly.
+- **Frame** — 1/60 s. The game clock adds 16, 16, 18 ms in rotation (16.67 ms on average), so clock seconds are
+  real seconds. [✓ recording: steps of 16 and 18 ms in the ratio 2:1]
+- **Physics** — still 2 substeps per frame, that is 120 substeps per second; the substep step is 0.0083 s (not 1/120).
+  The distance per second at the same speed is 0.996 of PAL (120 · 0.0083). [✓ recording: distance / (speed · time) in both
+  versions matched to within 0.1 %]
+- **Impulses per substep were not recalculated** (thrust, suspension, sliding off slopes — the same formulas and the same ship
+  parameters, PHY-10): therefore acceleration, stiffness and suspension damping per second in the US version are **about 1.2 times
+  larger**. Maximum speed is the same. [✓ measurement: the same ship without upgrades, Time Trial, throttle from
+  standstill, both versions — acceleration 300→800 km/h in US is faster by 1.15–1.3 times (1.2 on average); the start boost gives the same
+  speed per frame, that is in US it is shorter in time]
+- Physics, AI and pilot mood timers were recalculated for 60 Hz (some exactly ×5/6, some ×0.83). The **movement
+  speed** of some weapon effects per frame was reduced ×0.8 (for Flamer, Grenades, Plasma Bolt — ×5/6), so
+  some of them move 4 % slower per second in the US version. One component of ship physics was changed
+  much more (the coefficient is 6 times smaller); what it means — OQ-46.
+- **Not everything was recalculated.** The "wrong way" timer (RACE-6) stayed in frames — in US it is 2.33 / 0.33 s instead of 2.8 / 0.4 s;
+  the lava counter (PHY-21) stayed in substeps — its thresholds come 1.2 times earlier. The profile statistic "time in
+  races" and one of the HUD timers count 16 ms per frame — they lag behind real time by 4 %.
+- **Weapon timers** (lifetime of rockets and mines, effect durations, reload) were recalculated ×1.2 — per second
+  they are the same as in PAL. (Not to be confused with the movement speed of effects above.)
+- The **AI** thinks for each ship **every other frame** (30 times per second, even and odd ships in turn), in PAL —
+  every frame (50 times per second). The "shoot or not" decision of bots is slightly changed, and after any bot uses Quake
+  the others do not use it for **15 s** (in PAL — 5 s, AI-2).
+- A **weapon pad** after a pickup does not grant a weapon for **1 s** (in PAL — 0.5 s, WPN-3).
+- **Wall collisions** were rewritten: they are checked for each ship on every substep (in PAL — only in the first,
+  PHY-13), the bounce force per touch is half as large. Exact behaviour in US — not studied.
+- **Races on both versions** (one league of 5 races, the same ship with the same upgrades, one player)
+  [✓ player observation, PAL and US]:
+  - **Sliding.** In US the ship slides sideways less: the angle between the nose and the direction of movement at speed is
+    on average ~20 % smaller on all five tracks (median 4.2–6.2° versus 5.2–7.4°); turn rate with the same
+    steering command is almost the same.
+  - **Weapons on pads.** All ships pick them up ~20 % less often (2.4–4.6 versus 3.2–6.0 pickups per ship per
+    minute) — consistent with a pad that is "silent" for longer.
+  - **US version bug.** On Alca Vexus 2R in US the player's ship on a climb was accelerated within half a second to ~11 000 km/h and
+    thrown off the track (one case). In PAL at the same place over three laps this did not happen; another 5 repeats of the same
+    race moment in PAL — autopilot, straight throttle, steering left and right, coasting — also did not produce it
+    [✓ repeated runs of the same race moment]. This is a US version bug (project decision): not
+    reproduced in the port and not investigated; the reference is PAL.
+  - **Walls and brakes.** A bounce off a wall in US costs less speed (on 4 of 4 tracks where bounces occurred in both
+    versions, by ~25 % on average); the player held airbrakes for 15–26 % of race time in PAL, 11–19 % in US (on two
+    tracks the same).
+  - **Player impression.** PAL — "sliding" handling, the feel of a heavy craft; you have to enter a corner
+    early, difficult combinations (for example on Mandrashee) require technique and almost constant airbrakes; in
+    tight places the ship can "bounce" between walls, walls throw it back harder and take more speed. US — the nose
+    obeys better, corner entry is more predictable, brakes are needed mainly to throw the ship into a corner more sharply;
+    walls are softer; races are calmer (less weapons, opponents less pushy). For an implementation that
+    reproduces PAL, this is the "feel" reference.
+- The speed cheat code multiplies the player ship's speed by 2 (in PAL — by 10).
+- The Time Trial "ghost" stores 1080 records — the same 3 minutes at 60 Hz (RACE-15).
+- The picture is 448 lines instead of 512; all on-screen coordinates were recalculated. New particle effects for weapons and tracks.
+- **Data:** ship parameters are the same. The Flamer in the US version deals more damage (damage settings
+  0.4 / 0.1 → 0.8 / 0.5, WPN). In one lap-time challenge (league 3, race 3, Cubiss Float 2F) the medal thresholds are
+  looser by 2 s (85 / 80 / 75 instead of 83 / 78 / 73). The **track geometry** of Alca Vexus, Katmoda 12 and Temtesh Bay is changed
+  (all 6 layouts of each), for Vohl Square only the visibility data; Florion Height, Mandrashee, Cubiss Float and
+  Devilia — the same files. The file composition is almost the same (PAL 3280, US 3293) [✓ files]: only in PAL — the language selection clip
+  and the animation of flying machines over Katmoda 12 (3 models and a texture: not in US); only in US — leftover copies of old
+  tracks (18 files, not used by the game). The **start-straight board** is the same in both versions: the same 5 screens
+  (HOLD, READY, GO, FINAL, FINISH) and the same pictures; the files differ only in service bytes and the source path.
 
-### GEN-8. Встряска экрана [код; вид — ✓ видео]
-Игра умеет «трясти» **всю картинку вместе с интерфейсом**: в кадре, где встряска запрошена, изображение сдвигается
-на случайное расстояние по горизонтали и вертикали, в следующем возвращается на место, и так через кадр, пока
-запросы идут. Сила `A` — от 2 до 30 условных единиц; сдвиг по каждой оси — от `A` до `3A` в случайную сторону.
-На записи (PAL, 640×480) встряски — короткие очереди по 0.05–0.25 с со сдвигами до ~18 строк. Во время паузы
-и в некоторых режимах экрана — не трясёт. Источники бывают двух видов [код]:
-- **просят встряску каждый кадр, пока действуют**, с постоянной силой; сила меньше 2 поднимается до 2:
-  волна Quake рядом с кораблём игрока — сила 1–4 по удалённости (то есть 2–4); Seismic Field — 1 (то есть 2);
-  уничтожение корабля игрока — сила растёт по ходу уничтожения (SHIP-9);
-- **удары корабля игрока** задают число `N`: встряска идёт `N` кадров, а её сила в каждом кадре равна числу оставшихся
-  кадров (не больше 30 и не меньше 2) — сильный толчок, затухающий до нуля. Новый удар заменяет число. Видимых
-  сдвигов вдвое меньше, чем кадров (сдвиг через кадр):
-  - столкновение с другим кораблём — `N` = 10 (0.2 с);
-  - удар о трассу, снявший щит, — `N` = 5 × урон удара (касание стены −1 щита — 5 кадров, слабая и короткая);
-    удар о некоторые объекты трассы — `N` = 30 (0.6 с) [код; записью не проверено — счётчик тогда не писался];
-- **падающие глыбы льда на Cubiss Float** (FMT: файлы `ANIM_FALLING_ICEA…I.MEM` в папке трассы) [код; ✓ запись заезда]:
-  каждая глыба висит, пока **лучший прогресс среди людей** (RACE-1, круги с дробью) не превысит её порог, затем
-  падает с ускорением; когда она касается трассы — удар с `N` = 20: встряска 20 кадров (0.4 с), от силы 20 до 2,
-  **где бы ни был игрок**. Пороги: A 1.10, B 2.13, C 2.15, D 1.16, E 1.13, F 3.13, G 2.10, H 2.115, I 1.13 (то есть почти все — на
-  первом и втором круге). Каждая глыба падает один раз за гонку. **В гонке из одного корабля (Time Trial) глыбы не
-  падают** — поэтому там нет и этой тряски. Это самая сильная встряска в игре; в записи отметки игрока «трясёт»
-  пришлись сразу за ударами глыб.
+### GEN-8. Screen shake [code; appearance — ✓ video]
+The game can "shake" the **whole picture together with the interface**: in a frame where a shake is requested, the image is shifted
+by a random distance horizontally and vertically, in the next frame it returns to place, and so on every other frame while
+requests continue. Strength `A` — from 2 to 30 conventional units; the shift on each axis — from `A` to `3A` in a random direction.
+In the recording (PAL, 640×480) the shakes are short bursts of 0.05–0.25 s with shifts up to ~18 lines. During pause
+and in some screen modes — no shake. The sources are of two kinds [code]:
+- **request a shake every frame while active**, with constant strength; a strength below 2 is raised to 2:
+  the Quake wave near the player's ship — strength 1–4 by distance (that is 2–4); Seismic Field — 1 (that is 2);
+  destruction of the player's ship — strength grows as the destruction proceeds (SHIP-9);
+- **hits on the player's ship** set a number `N`: the shake lasts `N` frames, and its strength in each frame equals the number of remaining
+  frames (no more than 30 and no less than 2) — a strong jolt decaying to zero. A new hit replaces the number. There are half as many visible
+  shifts as frames (a shift every other frame):
+  - collision with another ship — `N` = 10 (0.2 s);
+  - a hit on the track that removed shield — `N` = 5 × hit damage (a wall touch −1 shield — 5 frames, weak and short);
+    a hit on some track objects — `N` = 30 (0.6 s) [code; not checked against a recording — the counter was not recorded then];
+- **falling ice blocks on Cubiss Float** (FMT: files `ANIM_FALLING_ICEA…I.MEM` in the track folder) [code; ✓ race recording]:
+  each block hangs until the **best progress among humans** (RACE-1, laps with fraction) exceeds its threshold, then
+  falls with acceleration; when it touches the track — a hit with `N` = 20: a shake of 20 frames (0.4 s), from strength 20 down to 2,
+  **wherever the player is**. Thresholds: A 1.10, B 2.13, C 2.15, D 1.16, E 1.13, F 3.13, G 2.10, H 2.115, I 1.13 (that is almost all on the
+  first and second lap). Each block falls once per race. **In a one-ship race (Time Trial) the blocks do not
+  fall** — so there is no such shake there either. This is the strongest shake in the game; in the recording the player's "shaking" marks
+  came right after the block impacts.
 
-### GEN-9. Демо-версия (диск SCED-50768) [✓ файлы данных демо; остальное — код]
-Демо с журнального диска Sony (метка диска «1.10» — версия **диска**, не игры) содержит **более раннюю сборку**
-игры — на две недели старше релизной PAL. Отличия, которые видны в игре:
-- две трассы: Alca Vexus 2F и Florion Height 3F; есть экран-заставка демо и экран конца Arcade с предложением купить
-  игру; демо само возвращается в меню демо-диска (таймер бездействия);
-- параметры кораблей те же; урон оружия частично другой: Flamer `Max` 0.1 (PAL 0.4, US 0.8), Bio Snare `Max` 0.5
-  (PAL 1.0) — то есть огнемёт от демо к US последовательно усиливали;
-- кадр, часы и физика — как в PAL (GEN-1, PHY-1); файл трассы Alca Vexus 2F в демо — более ранний вариант
-  (секции другого размера), Florion Height 3F совпадает с релизом.
+### GEN-9. Demo version (disc SCED-50768) [✓ demo data files; the rest — code]
+The demo from a Sony magazine disc (disc label "1.10" — the version of the **disc**, not of the game) contains an **earlier build**
+of the game — two weeks older than the PAL release. Differences visible in the game:
+- two tracks: Alca Vexus 2F and Florion Height 3F; there is a demo splash screen and an Arcade end screen offering to buy
+  the game; the demo returns by itself to the demo disc menu (idle timer);
+- ship parameters are the same; weapon damage is partly different: Flamer `Max` 0.1 (PAL 0.4, US 0.8), Bio Snare `Max` 0.5
+  (PAL 1.0) — that is, the flamer was strengthened consistently from the demo to US;
+- frame, clock and physics — as in PAL (GEN-1, PHY-1); the Alca Vexus 2F track file in the demo is an earlier variant
+  (sections of different size), Florion Height 3F matches the release.
 
-## Документы
-| файл | о чём | ID |
+## Documents
+| file | about | ID |
 |---|---|---|
-| [00_glossary.md](00_glossary.md) | термины | — |
-| [01_game_flow.md](01_game_flow.md) | режимы, жизненный цикл гонки, старт, пауза, финиш | FLOW |
-| [02_ship.md](02_ship.md) | параметры корабля, апгрейды, щит и урон, состояния, ввод, команды и пилоты | SHIP |
-| [03_physics.md](03_physics.md) | подшаг, подвеска, тяга, повороты, покрытия, трамплины, лава, столкновения | PHY |
-| [04_race_rules.md](04_race_rules.md) | круги и прогресс, места, perfect lap, лига, челленджи, медали, процент прохождения | RACE |
-| [05_ai.md](05_ai.md) | ИИ как виртуальный геймпад, характер пилотов | AI |
-| [06_weapons.md](06_weapons.md) | оружие: выдача, урон, эффекты попаданий | WPN |
-| [07_data_formats.md](07_data_formats.md) | форматы файлов игры и сохранения | FMT |
-| [08_open_questions.md](08_open_questions.md) | что неизвестно или не проверено | OQ |
-| [09_test_cases.md](09_test_cases.md) | контрольные примеры для тестов реализации | TC |
-| [QUESTIONS.md](QUESTIONS.md) | журнал вопросов чистой команды | Q |
-| [CHANGELOG.md](CHANGELOG.md) | выпуски спецификации и проверки | — |
+| [00_glossary.md](00_glossary.md) | terms | — |
+| [01_game_flow.md](01_game_flow.md) | modes, race life cycle, start, pause, finish | FLOW |
+| [02_ship.md](02_ship.md) | ship parameters, upgrades, shield and damage, states, input, teams and pilots | SHIP |
+| [03_physics.md](03_physics.md) | substep, suspension, thrust, turns, surfaces, ramps, lava, collisions | PHY |
+| [04_race_rules.md](04_race_rules.md) | laps and progress, places, perfect lap, league, challenges, medals, completion percentage | RACE |
+| [05_ai.md](05_ai.md) | AI as a virtual gamepad, pilot character | AI |
+| [06_weapons.md](06_weapons.md) | weapons: granting, damage, hit effects | WPN |
+| [07_data_formats.md](07_data_formats.md) | game file and save formats | FMT |
+| [08_open_questions.md](08_open_questions.md) | what is unknown or unverified | OQ |
+| [09_test_cases.md](09_test_cases.md) | reference examples for implementation tests | TC |
+| [QUESTIONS.md](QUESTIONS.md) | clean team question log | Q |
+| [CHANGELOG.md](CHANGELOG.md) | specification releases and checks | — |
 
-## Рекомендуемый порядок реализации
-1. Загрузчики данных: `.TRK` + `.LAP`, `SHIPS.INI`, `WEAPONSTATS.INI`, INI пилотов, `GAME.BNI` (07).
-2. Генератор случайных чисел, часы, кадр/подшаги (GEN-1, GEN-4) — с тестами TC-1…TC-3.
-3. Физика корабля (03) на записанном вводе.
-4. Ход гонки: старт, круги, прогресс, места, пауза, финиш (01, 04).
-5. ИИ (05) — он пишет тот же ввод, что и игрок, поэтому подключается поверх готовой физики.
-6. Оружие (06), режимы и прогресс игрока (04).
-7. Меню, HUD, рендер, звук — свои, по форматам из 07.
+## Recommended implementation order
+1. Data loaders: `.TRK` + `.LAP`, `SHIPS.INI`, `WEAPONSTATS.INI`, pilot INI, `GAME.BNI` (07).
+2. Random number generator, clock, frame/substeps (GEN-1, GEN-4) — with tests TC-1…TC-3.
+3. Ship physics (03) on recorded input.
+4. Race flow: start, laps, progress, places, pause, finish (01, 04).
+5. AI (05) — it writes the same input as the player, so it is plugged in on top of the finished physics.
+6. Weapons (06), modes and player progress (04).
+7. Menu, HUD, rendering, sound — your own, following the formats from 07.

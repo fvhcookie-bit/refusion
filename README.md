@@ -1,15 +1,18 @@
-# ReFusion — спецификация поведения Wipeout Fusion
+# ReFusion — behaviour specification of Wipeout Fusion
 
-Описание поведения игры **Wipeout Fusion** (PS2, PAL SCES-50005), написанное для независимой реализации по методу
-«чистой комнаты»: правила с идентификаторами, формулы, константы, форматы файлов игры, контрольные примеры.
+Русская версия: [README.ru.md](README.ru.md)
 
-Репозиторий **не содержит** данных игры (моделей, текстур, звука, текстов), исполняемого кода игры, дизассемблера
-или результатов декомпиляции. Реализация работает с файлами, которые пользователь берёт со своей копии игры.
-Проект не связан с правообладателями игры; названия принадлежат их владельцам.
+A description of the behaviour of **Wipeout Fusion** (PS2, PAL SCES-50005), written for an independent
+clean-room implementation: rules with identifiers, formulas, constants, game file formats, test cases.
 
-| папка | что внутри |
+The repository **does not contain** game data (models, textures, sound, texts), the game's executable code,
+disassembly or decompilation results. An implementation works with files that the user takes from their own copy of the game.
+The project is not affiliated with the rights holders of the game; the names belong to their owners.
+
+| folder | contents |
 |---|---|
-| [`docs/spec/`](docs/spec/README.md) | спецификация поведения: правила с ID, метки доказанности, открытые вопросы, журнал изменений |
-| [`docs/process/`](docs/process/README.md) | протокол «чистой комнаты», чек-лист проверки, `check_spec.py` |
+| [`docs/spec/`](docs/spec/README.md) | behaviour specification: rules with IDs, evidence labels, open questions, change log |
+| [`docs/process/`](docs/process/README.md) | clean-room protocol, review checklist, `check_spec.py` |
+| `docs/ru/` | Russian version of the same documents |
 
-Проверка спецификации на загрязнение: `python docs/process/check_spec.py`.
+Checking the specification for contamination: `python docs/process/check_spec.py`.

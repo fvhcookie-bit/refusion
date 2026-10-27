@@ -1,128 +1,130 @@
-# Протокол «чистой комнаты» проекта ReFusion
+# Clean-room protocol of the ReFusion project
 
-Цель — написать собственную реализацию Wipeout Fusion так, чтобы в ней не было ничего, взятого из кода оригинала:
-ни текста программы, ни её внутренней структуры, ни имён. Для этого работа делится между двумя изолированными
-группами, а единственный канал между ними — письменная спецификация `spec/`, проверенная на «загрязнение».
+Русская версия: [docs/ru/process/README.md](../ru/process/README.md)
 
-> Это инженерная практика, которая снижает риск и даёт доказательства независимости, а не юридическая гарантия.
-> Игровые ресурсы (треки, модели, звук, тексты) и торговые марки — отдельный вопрос: реализация их **не содержит**
-> и работает с файлами, которые пользователь берёт со своей копии игры.
+The goal is to write our own implementation of Wipeout Fusion so that it contains nothing taken from the original's code:
+neither program text, nor its internal structure, nor names. To this end the work is divided between two isolated
+groups, and the only channel between them is the written specification `spec/`, checked for "contamination".
 
-## 1. Роли
+> This is an engineering practice that reduces risk and provides evidence of independence, not a legal guarantee.
+> Game assets (tracks, models, sound, texts) and trademarks are a separate matter: the implementation **does not contain** them
+> and works with files that the user takes from their own copy of the game.
 
-| роль | что делает | к чему имеет доступ |
+## 1. Roles
+
+| role | what it does | what it has access to |
 |---|---|---|
-| **Грязная команда** (исследователи) | реверс, записи и наблюдение за работой игры; пишет и исправляет `spec/` | всё: исполняемый файл, декомпилят, закрытые заметки, память работающей игры, инструменты |
-| **Редактор** (контролёр чистоты) | проверяет каждое изменение `spec/` по [чек-листу](review_checklist.md), пропускает или возвращает; ведёт журналы | `spec/`, `process/`, при проверке — закрытые заметки (только чтобы понять, откуда факт) |
-| **Чистая команда** (реализация) | пишет код по `spec/`, задаёт вопросы через редактора | **только** выпуск спецификации (`spec/` + `process/`) и легально купленная игра |
-| **Оператор записи** | запускает игру и средства записи, играет нужные заезды по заданию исследователя | средства записи как «чёрный ящик»; **не** читает их вывод, закрытые заметки и технические отчёты |
+| **Dirty team** (researchers) | reverse engineering, recordings and observation of the running game; writes and corrects `spec/` | everything: the executable, decompilation, private notes, memory of the running game, tools |
+| **Editor** (contamination controller) | checks every change to `spec/` against the [checklist](review_checklist.md), passes or returns it; keeps the logs | `spec/`, `process/`, and during review the private notes (only to understand where a fact comes from) |
+| **Clean team** (implementation) | writes code from `spec/`, asks questions through the editor | **only** a specification release (`spec/` + `process/`) and a legally purchased game |
+| **Recording operator** | runs the game and the recording tools, plays the required races as assigned by the researcher | the recording tools as a "black box"; does **not** read their output, the private notes or technical reports |
 
-Один человек не может быть одновременно в грязной и в чистой команде. Кто **вникал** в закрытые заметки, декомпилят или
-дизассемблер этой игры, — в грязной команде для этого проекта. Мимолётный контакт без понимания (пролистал файл,
-открыл дизассемблер и ничего не понял) не делает человека грязным, но **записывается** в закрытый журнал допуска
-(не публикуется). Редактор может совпадать с исследователем, но тогда изменения `spec/` должен дополнительно просмотреть
-второй человек (правило двух ключей).
+One person cannot be in both the dirty and the clean team at once. Anyone who has **studied** the private notes, decompilation or
+disassembly of this game is in the dirty team for this project. A fleeting contact without understanding (leafed through a file,
+opened a disassembler and understood nothing) does not make a person dirty, but is **recorded** in the private admission log
+(not published). The editor may coincide with a researcher, but then changes to `spec/` must additionally be reviewed
+by a second person (two-key rule).
 
-### Оператор записи
-Член чистой команды может быть оператором записи — тогда его руками собираются данные для грязной команды, но знания
-к нему не попадают. Условия:
-- задания он получает в терминах игры («проедь круг Florion 2F без касаний», «запусти запись перед стартом»);
-- не открывает записи памяти, вывод средств записи и закрытые заметки; файлы только переносит туда, где их возьмёт исследователь;
-- если что-то грязное всё же попалось на глаза — запись в закрытый журнал допуска (журнал ведёт редактор, в публичный выпуск не входит).
+### Recording operator
+A member of the clean team may be a recording operator — then data for the dirty team is collected by his hands, but no knowledge
+passes to him. Conditions:
+- he receives assignments in terms of the game ("drive a lap of Florion 2F without touches", "start recording before the start");
+- he does not open memory recordings, recording tool output or private notes; he only carries files to where the researcher will take them;
+- if something dirty still catches his eye — an entry in the private admission log (kept by the editor, not part of the public release).
 
-### ИИ-ассистенты
-К ИИ-ассистентам применяются те же правила, что к людям, на уровне **рабочего сеанса**:
-- сеанс, у которого в контексте был этот репозиторий целиком, закрытые заметки, декомпилят или вывод инструментов реверса, — грязный;
-- реализацию вести в **отдельном репозитории**, куда скопирован только выпуск спецификации (раздел 4).
-  Этот репозиторий к сеансу реализации не подключать, в один сеанс с реверсом реализацию не смешивать;
-- если ассистент сам писал `spec/` по закрытым заметкам, он работал как грязная команда; результат проверяет редактор;
-- грязный сеанс, который общается с участником чистой команды (например, с оператором записи), пишет ему только
-  задания и выводы в терминах поведения, а всё техническое — в закрытые заметки.
+### AI assistants
+The same rules apply to AI assistants as to people, at the level of the **working session**:
+- a session that had this whole repository, the private notes, decompilation or reverse-engineering tool output in its context is dirty;
+- implementation is to be done in a **separate repository** into which only a specification release is copied (section 4).
+  Do not connect this repository to the implementation session, and do not mix implementation with reverse engineering in one session;
+- if the assistant itself wrote `spec/` from the private notes, it worked as the dirty team; the result is checked by the editor;
+- a dirty session that communicates with a member of the clean team (for example with the recording operator) writes to him only
+  assignments and conclusions in terms of behaviour, and everything technical goes into the private notes.
 
-## 2. Что можно и нельзя чистой команде
+## 2. What the clean team may and may not do
 
-**Можно:**
-- читать выпуск спецификации, задавать вопросы через журнал вопросов ([`spec/QUESTIONS.md`](../spec/QUESTIONS.md));
-- играть в свою легальную копию игры, записывать видео, смотреть на экран (HUD, меню, времена кругов);
-- читать **файлы данных** игры (`SHIPS.INI`, `WEAPONSTATS.INI`, `.TRK`, `GAME.BNI` и т.д.) — форматы описаны в `spec/07`;
-- пользоваться общедоступной документацией по форматам (MPEG-2, TGA и т.п.) и по PS2 как платформе.
+**May:**
+- read a specification release, ask questions through the question log ([`spec/QUESTIONS.md`](../spec/QUESTIONS.md));
+- play their legal copy of the game, record video, look at the screen (HUD, menus, lap times);
+- read the game's **data files** (`SHIPS.INI`, `WEAPONSTATS.INI`, `.TRK`, `GAME.BNI` etc.) — the formats are described in `spec/07`;
+- use publicly available documentation on formats (MPEG-2, TGA etc.) and on the PS2 as a platform.
 
-**Нельзя:**
-- открывать исполняемый файл игры в дизассемблере/декомпиляторе, читать его строки и таблицы;
-- читать закрытые заметки исследования, декомпилят, проекты дизассемблера, скрипты и вывод инструментов реверса;
-- читать память работающей игры (средства просмотра памяти и дизассемблер) — это наблюдение за внутренностями, а не за поведением;
-- брать код из чужих декомпиляций, рекомпиляций и утечек исходников этой игры;
-- читать код и патчи изменений игры и инструментов, сделанных грязной стороной, **в том числе опубликованных**:
-  в них адреса и устройство оригинала. Пользоваться готовым изменением в игре — можно;
-- получать от грязной команды что-либо мимо спецификации и журнала вопросов (устно, в чатах, «по секрету»).
+**May not:**
+- open the game's executable in a disassembler/decompiler, read its strings and tables;
+- read the research's private notes, decompilation, disassembler projects, scripts and reverse-engineering tool output;
+- read the memory of the running game (memory viewers and a disassembler) — that is observing the internals, not the behaviour;
+- take code from other people's decompilations, recompilations and source leaks of this game;
+- read the code and patches of game modifications and tools made by the dirty side, **including published ones**:
+  they contain addresses and the structure of the original. Using a ready-made modification in the game is allowed;
+- receive anything from the dirty team bypassing the specification and the question log (verbally, in chats, "in secret").
 
-## 3. Как факт попадает в спецификацию
+## 3. How a fact gets into the specification
 
-1. Грязная команда устанавливает факт (код, запись гонки, наблюдение) и записывает доказательство в закрытые заметки.
-2. Формулирует правило в `spec/` **своими словами как поведение**: что наблюдается, какие числа, в каком порядке.
-   Не переписывает функцию построчно, не сохраняет имена переменных, ветвления и структуры памяти оригинала,
-   если они не нужны для наблюдаемого результата.
-3. Ставит правилу ID (`PHY-6`, `WPN-12` …) и отметку доказанности `[✓]`/`[код]`/`[?]`.
-4. Добавляет строку в закрытый журнал трассировки (не публикуется): ID → где доказательство.
-5. Прогоняет автоматическую проверку: `python docs/process/check_spec.py`.
-6. Редактор проверяет изменение по [чек-листу](review_checklist.md) и отмечает выпуск в [`spec/CHANGELOG.md`](../spec/CHANGELOG.md).
+1. The dirty team establishes a fact (code, race recording, observation) and writes the evidence into the private notes.
+2. It formulates the rule in `spec/` **in its own words as behaviour**: what is observed, which numbers, in which order.
+   It does not rewrite a function line by line, does not keep the names of variables, branches and memory structures of the original
+   if they are not needed for the observable result.
+3. It gives the rule an ID (`PHY-6`, `WPN-12` …) and an evidence mark `[✓]`/`[code]`/`[?]`.
+4. It adds a row to the private traceability log (not published): ID → where the evidence is.
+5. It runs the automatic check: `python docs/process/check_spec.py`.
+6. The editor checks the change against the [checklist](review_checklist.md) and notes the release in [`spec/CHANGELOG.md`](../spec/CHANGELOG.md).
 
-## 4. Выпуск спецификации для чистой команды
+## 4. Releasing the specification to the clean team
 
-Чистая команда получает **не репозиторий** (в нём закрытые заметки и вся история), а архив проверенного выпуска:
+The clean team receives **not the repository** (it holds the private notes and the whole history), but an archive of the checked release:
 
 ```sh
-git tag spec-r1                       # после проверки редактором
+git tag spec-r1                       # after the editor's check
 git archive --format=zip -o refusion-spec-r1.zip spec-r1 docs/spec docs/process
 ```
 
-Архив распаковывается в отдельный репозиторий реализации. Выпуски нумеруются `r1, r2, …`; изменения
-перечисляются в `spec/CHANGELOG.md`, чтобы чистая команда видела, какие правила поменялись.
+The archive is unpacked into a separate implementation repository. Releases are numbered `r1, r2, …`; changes
+are listed in `spec/CHANGELOG.md` so that the clean team can see which rules changed.
 
-## 5. Вопросы чистой команды
+## 5. Clean team questions
 
-- Вопрос пишется в [`spec/QUESTIONS.md`](../spec/QUESTIONS.md) с ID `Q-NNN` и формулируется о **поведении**
-  («что происходит, если корабль подбирает оружие, держа огонь?»), а не о коде.
-- Грязная команда отвечает **изменением спецификации** (новое или уточнённое правило) и ссылкой на его ID.
-  Ответ «не известно» — тоже ответ: правило уходит в `spec/08_open_questions.md`.
-- Ответ проходит ту же проверку редактора, что и любое изменение `spec/`.
+- A question is written in [`spec/QUESTIONS.md`](../spec/QUESTIONS.md) with ID `Q-NNN` and is phrased about **behaviour**
+  ("what happens if a ship picks up a weapon while holding fire?"), not about code.
+- The dirty team answers with a **change to the specification** (a new or refined rule) and a reference to its ID.
+  The answer "not known" is also an answer: the rule goes to `spec/08_open_questions.md`.
+- The answer goes through the same editor check as any change to `spec/`.
 
-## 6. Сверка реализации с оригиналом
+## 6. Checking the implementation against the original
 
-Чистая команда не смотрит в память оригинала, поэтому побитовую сверку делает грязная команда:
-1. чистая команда передаёт запись ввода и вывод своей реализации (позиции, скорости, щит по кадрам);
-2. грязная команда прогоняет тот же ввод на оригинальной игре и сравнивает;
-3. ответ возвращается **только** в терминах спецификации: «совпало» или «расходится в правиле PHY-9 с кадра N:
-   наблюдается X, у вас Y». Никаких адресов, имён полей и фрагментов кода.
+The clean team does not look into the original's memory, so the bit-exact comparison is done by the dirty team:
+1. the clean team passes an input recording and the output of its implementation (positions, speeds, shield by frame);
+2. the dirty team runs the same input on the original game and compares;
+3. the answer comes back **only** in terms of the specification: "matches" or "diverges in rule PHY-9 from frame N:
+   X is observed, you have Y". No addresses, field names or code fragments.
 
-Контрольные примеры, которые можно проверить без запуска оригинала, — в [`spec/09_test_cases.md`](../spec/09_test_cases.md).
+Test cases that can be checked without running the original are in [`spec/09_test_cases.md`](../spec/09_test_cases.md).
 
-## 7. Журналы (доказательная база независимости)
+## 7. Logs (the evidence base of independence)
 
-| журнал | где | кто ведёт |
+| log | where | kept by |
 |---|---|---|
-| допуск участников и их декларации | закрытый журнал допуска (не публикуется) | редактор |
-| вопросы и ответы | [`spec/QUESTIONS.md`](../spec/QUESTIONS.md) | редактор |
-| выпуски спецификации и проверки | [`spec/CHANGELOG.md`](../spec/CHANGELOG.md) | редактор |
-| трассировка правил к доказательствам | закрытый журнал трассировки (не публикуется) | грязная команда |
+| admission of participants and their declarations | private admission log (not published) | editor |
+| questions and answers | [`spec/QUESTIONS.md`](../spec/QUESTIONS.md) | editor |
+| specification releases and checks | [`spec/CHANGELOG.md`](../spec/CHANGELOG.md) | editor |
+| traceability of rules to evidence | private traceability log (not published) | dirty team |
 
-Журналы не переписываются задним числом: исправления — новой строкой. История git хранит даты.
+Logs are not rewritten retroactively: corrections go in as a new line. The git history keeps the dates.
 
-## 8. План реализации
+## 8. Implementation plan
 
-Порядок работ реализации определяет чистая команда.
+The order of the implementation work is determined by the clean team.
 
-## 9. Если произошло загрязнение
+## 9. If contamination has occurred
 
-Если в выпуск попал запрещённый материал или участник чистой команды увидел грязные данные:
-1. записать инцидент в журнал допуска (что, кто, когда);
-2. исправить спецификацию и выпустить новую ревизию;
-3. код, который участник написал после контакта с грязными данными **в затронутой области**, — переписывает другой
-   участник чистой команды по исправленной спецификации.
+If prohibited material got into a release or a clean team member saw dirty data:
+1. record the incident in the admission log (what, who, when);
+2. correct the specification and issue a new revision;
+3. the code that the participant wrote after contact with dirty data **in the affected area** is rewritten by another
+   clean team member from the corrected specification.
 
-### Аудит кода реализации
-Если у участника чистой команды записаны контакты с грязными данными (см. журнал допуска), перед каждым выпуском
-реализации грязная сторона проверяет её код на «эхо» оригинала: адреса и смещения памяти, порядок и раскладку полей,
-внутренние имена, константы, которых нет в `spec/`, структуру функций, повторяющую оригинал. Ответ — только «чисто» или
-«в файле X, строка N — значение/структура, которой нет в спецификации; откуда оно?». Найденное переписывается по
-спецификации. Результат аудита записывается в журнал допуска.
+### Audit of implementation code
+If a clean team member has recorded contacts with dirty data (see the admission log), before each release
+of the implementation the dirty side checks its code for "echoes" of the original: memory addresses and offsets, the order and layout of fields,
+internal names, constants that are not in `spec/`, function structure that repeats the original. The answer is only "clean" or
+"in file X, line N — a value/structure that is not in the specification; where does it come from?". What is found is rewritten from
+the specification. The audit result is recorded in the admission log.

@@ -1,84 +1,84 @@
-# Выпуски спецификации
+# Specification releases
 
-Каждый выпуск — тег `spec-rN` и архив (`../process/README.md`, раздел 4). Здесь — что изменилось в поведении и правилах.
-Пометка «не проверено вручную» означает, что правка прошла автоматическую проверку, но ещё не прошла ручной просмотр.
+Each release is a `spec-rN` tag and an archive (`../process/README.md`, section 4). This file lists what changed in behaviour and rules.
+The note "not manually reviewed" means that the change passed the automatic check but has not yet passed manual review.
 
-## r1 — черновик, 2026-10-18 (ещё не выпущен)
+## r1 — draft, 2026-10-18 (not yet released)
 
-Выпускать (ставить тег `spec-r1`) — только после ручной проверки вторым человеком, не автором текста.
-Автоматическая проверка (`docs/process/check_spec.py`) пройдена.
+Release (set the `spec-r1` tag) only after manual review by a second person, not the author of the text.
+The automatic check (`docs/process/check_spec.py`) has passed.
 
-### 2026-10-26 (не проверено вручную)
-- WPN-22 дополнен по записи гонок на PAL (оружие выдано на изменённой игре, попадания определены по падению щита соперника): примерно 25 выстрелов в секунду, заряд расходуется меньше чем за секунду, урон щиту соперника порядка 0,2 % за попадание, попадания до ~400 единиц расстояния, небольшое повреждение устойчивости у части попаданий; влияние попаданий на скорость и линию соперников не подтверждено (выборка мала). OQ-31 сужен.
+### 2026-10-26 (not manually reviewed)
+- WPN-22 extended from a recording of PAL races (weapon granted on a modified game, hits identified by the drop in the opponent's shield): about 25 shots per second, the charge is used up in under a second, damage to the opponent's shield about 0.2 % per hit, hits up to ~400 units of distance, minor stability damage from some hits; the effect of hits on opponents' speed and line is not confirmed (small sample). OQ-31 narrowed.
 
 ### 2026-10-25
-- SHIP-14: модель корабля в меню не отличается от модели на трассе (наблюдение игрока); OQ-44 окончательно закрыт.
-- RACE-19 (Zone) переписан по наблюдению игрока: зоны-сжатия нет, газ всегда нажат, гибель от касаний стен, рост скорости с уровнем, ускорители работают, оружия и пит-лейна нет. RACE-20 разделён на Eliminator и Endurance с пометкой «наблюдений нет». OQ-25 оставлен только на очки Zone, Eliminator и Endurance.
-- Для оставшихся видов оружия (Shield Drain, Bio Snare, Shield Raider, Turbo Enforcer, Stealth, Global Drain, Control Jammer) наблюдений нет: поведение закрывается тестами на изменённой игре и наблюдением, урон и числовые параметры берутся из данных игры (WPN-16, OQ-31).
-- WPN-19 создан и снят в тот же день (описание относилось к другому оружию; ID не переиспользуется).
-- Новые правила WPN-18 (Penetrator), WPN-20 (Flamer), WPN-21 (три вида полёта снарядов: вдоль геометрии трассы, по свободной траектории, с наведением), WPN-22 (Proton Cannon: 25 зарядов при подборе, быстрая очередь вперёд по геометрии трассы, без наведения, назад не стреляет, небольшой урон, но сильно сбивает стабильность), WPN-23 (Shield: непроницаемый щит на время, поглощает любой урон и при поглощении перекрашивается из синего в красный). WPN-6, WPN-8, WPN-16, WPN-17, OQ-31 обновлены.
-- WPN-11 (Plasma Bolt) дополнен наблюдениями: один заряд, зарядка 1–2 с, без наведения и сплэша. Ранее ошибочное описание Proton Cannon, относившееся к Plasma Bolt, исправлено.
-- Quake идёт по геометрии трассы, включая разделение и слияние участков (WPN-13); за геометрией следуют также Rocket, Missile, Super Missiles и Plasma Bolt (WPN-6, WPN-11, WPN-21); прохождение трамплинов волной Quake открыто в OQ-31.
-- Grenades (3 штуки веером, вперёд или назад по «взгляду назад») летят по свободной траектории и могут вылететь за пределы трассы; вылетевшая граната взрывается или исчезает (WPN-6). Мины стоят на месте и от «взгляда назад» не зависят. Корабль, вылетевший за край карты, возвращается на трассу без урона (PHY-22).
+- SHIP-14: the ship model in the menu does not differ from the model on the track (player observation); OQ-44 finally closed.
+- RACE-19 (Zone) rewritten from a player observation: there is no shrinking zone, throttle is always pressed, ships are destroyed by wall touches, speed grows with level, boosters work, there are no weapons and no pit lane. RACE-20 split into Eliminator and Endurance with the note "no observations". OQ-25 kept only for the Zone, Eliminator and Endurance scoring.
+- For the remaining weapons (Shield Drain, Bio Snare, Shield Raider, Turbo Enforcer, Stealth, Global Drain, Control Jammer) there are no observations: behaviour is to be closed by tests on a modified game and by observation, damage and numeric parameters are taken from the game data (WPN-16, OQ-31).
+- WPN-19 created and withdrawn on the same day (the description referred to a different weapon; the ID is not reused).
+- New rules WPN-18 (Penetrator), WPN-20 (Flamer), WPN-21 (three kinds of projectile flight: along the track geometry, on a free trajectory, with homing), WPN-22 (Proton Cannon: 25 charges on pickup, a fast burst forward along the track geometry, no homing, does not fire backward, small damage but strongly upsets stability), WPN-23 (Shield: an impenetrable shield for a time, absorbs any damage and changes colour from blue to red when it absorbs). WPN-6, WPN-8, WPN-16, WPN-17, OQ-31 updated.
+- WPN-11 (Plasma Bolt) extended with observations: one charge, charging 1–2 s, no homing and no splash. The earlier erroneous description of Proton Cannon, which actually referred to Plasma Bolt, corrected.
+- Quake follows the track geometry, including the splitting and merging of sections (WPN-13); Rocket, Missile, Super Missiles and Plasma Bolt also follow the geometry (WPN-6, WPN-11, WPN-21); passage of ramps by the Quake wave is open in OQ-31.
+- Grenades (3 in a fan, forward or backward with "look back") fly on a free trajectory and can leave the track; a grenade that has left explodes or disappears (WPN-6). Mines stay in place and do not depend on "look back". A ship that has left the edge of the map returns to the track without damage (PHY-22).
 
-### 2026-10-24 (по наблюдениям игрока)
-- WPN-6 переписан по игре: ракеты (3, по прямой), Missile с самонаведением, Super Missiles с захватом до трёх целей, мины на месте корабля, Quake с деформацией меша, Power Swarm роем дронов; WPN-7 — «взгляд назад» подтверждён для этих видов; WPN-13 дополнен видом волны; WPN-3 — срабатывание по области, а не по касанию краем.
-- Выдача Super Weapon из общего пула с командным типом при подборе; в Time Trial ускорение выдаётся игроку при каждом пересечении финиша.
-- Оружейные площадки: выдача только активной площадкой подходящему кораблю, мгновенное гашение, различный кулдаун EU/PAL и US, нет восстановления в паузе, вооружённый корабль не гасит площадку. Подбор — над активной площадкой при отсутствии оружия и щите выше нуля. OQ-28 закрыт по основным условиям.
-- Повреждения корпуса не влияют на применение оружия, силу, скорость, дальность и время до повторного выстрела; после разрушения носа оружие можно сразу подобрать и применить. Урон локально разрушает элементы корпуса и переходит на соседние; одинаковые корабли могут разрушаться в разной последовательности. Уточнены доли прочности четырёх зон корпуса; `mdamage_decrease%` не участвует в расчёте урона (OQ-5 сужен).
-- WPN-18: Penetrator (супероружие Piranha) — ускорение и энергетический таран на носу, урон тарана не изучен.
-- RACE-15: призрак — полупрозрачная дымчатая копия корабля игрока со шлейфом, без других эффектов, детерминированная запись; в начале сессии отсутствует и между сессиями не переносится (на карту пишется только время). OQ-21 закрыт.
-- Уточнены поведение ИИ после вылета, торможение перед поворотами и качественные наблюдения физики на покрытиях, подъёмах, в полёте, при приземлениях и столкновениях.
-- AI-3: ИИ использует линии раскладки `.SPL` (связь с объектами `.TRI` не подтверждена, OQ-27). AI-6: плавность меняется по таймерам вслед за агрессией, концентрация не меняется. WPN-8: щит снимается кнопкой без выбрасывания оружия, в Endurance кнопка использует запас Proton Cannon.
+### 2026-10-24 (from player observations)
+- WPN-6 rewritten to match the game: rockets (3, straight), Missile with homing, Super Missiles with lock on up to three targets, mines at the ship's position, Quake with mesh deformation, Power Swarm with a swarm of drones; WPN-7 — "look back" confirmed for these kinds; WPN-13 extended with the look of the wave; WPN-3 — triggering by area, not by touching with an edge.
+- Super Weapon is granted from a common pool with a team-specific type on pickup; in Time Trial the boost is granted to the player at every finish line crossing.
+- Weapon pads: granted only by an active pad to a suitable ship, instant extinguishing, different cooldown for EU/PAL and US, no recovery during pause, an armed ship does not extinguish the pad. Pickup — over an active pad when the ship has no weapon and shield is above zero. OQ-28 closed for the main conditions.
+- Hull damage does not affect weapon use, power, speed, range or time before the next shot; after the nose is destroyed a weapon can be picked up and used at once. Damage locally destroys hull elements and spreads to neighbours; identical ships can be destroyed in a different sequence. Strength shares of the four hull zones refined; `mdamage_decrease%` does not take part in the damage calculation (OQ-5 narrowed).
+- WPN-18: Penetrator (Piranha's super weapon) — a boost and an energy ram on the nose, ram damage not studied.
+- RACE-15: ghost — a semi-transparent hazy copy of the player's ship with a trail, with no other effects, a deterministic recording; absent at the start of a session and not carried between sessions (only the time is written to the card). OQ-21 closed.
+- Refined AI behaviour after leaving the track, braking before corners, and qualitative physics observations on surfaces, climbs, in flight, on landings and collisions.
+- AI-3: the AI uses the `.SPL` layout lines (the link to `.TRI` objects is not confirmed, OQ-27). AI-6: smoothness changes on timers following aggression, concentration does not change. WPN-8: the shield is dropped with a button without throwing away the weapon, in Endurance the button uses the Proton Cannon reserve.
 
-### 2026-10-23 (по файлам данных и тестам на изменённой игре)
-- FMT-26: описаны ячейки модели трассы и маска видимости.
-- FMT-27: небо и облака трассы (`SKY_*/SKY.MEM` — обычная модель купола, `CLOUDS.CFI` — слои облаков, разобраны частично). Они есть только у трёх трасс (FLORION_HEIGHT, CUBISS_FLOAT, VOHL_SQUARE).
-- FMT-25: объектов в `.TRI` Florion 1F 266, а не 103 имени; соответствие «объект → файл модели» в данных не хранится, выводится по типу и имени.
-- FMT-18/FMT-19: у моделей объектов, размещаемых через `.TRI`, элементы списка текстур — ссылки на отдельно загружаемую картинку; все 965 файлов данных читаются.
-- FMT-20: папки `TEXTURES/` есть только у трёх трасс (467 файлов); модели трассы и неба ссылаются на картинки по номеру, а не по записи текстуры, таблица «номер → файл» не найдена. Небо: купола нумеруют грани, картинки по файлу на грань.
-- Полная сцена трассы собирается для 45/45 проезжаемых уровней; объекты `.TRI` сопоставлены с моделями 266/266.
-- OQ-3: пять параметров корабля из SHIPS.INI разобраны по поведению (множитель сопротивления выше предела скорости; счётчик кадров после столкновения; неиспользуемое поле массы; порог и сила реакции носа при касании покрытия — это приземление/удар о покрытие, а не кивок при торможении). Открыто: единицы угла, проверка в игре.
+### 2026-10-23 (from game data files and tests on a modified game)
+- FMT-26: track model cells and the visibility mask described.
+- FMT-27: track sky and clouds (`SKY_*/SKY.MEM` — an ordinary dome model, `CLOUDS.CFI` — cloud layers, partially parsed). They exist only for three tracks (FLORION_HEIGHT, CUBISS_FLOAT, VOHL_SQUARE).
+- FMT-25: Florion 1F `.TRI` has 266 objects, not 103 names; the "object → model file" mapping is not stored in the data, it is derived from type and name.
+- FMT-18/FMT-19: for models of objects placed through `.TRI`, the texture list items are references to a separately loaded image; all 965 data files are readable.
+- FMT-20: `TEXTURES/` folders exist only for three tracks (467 files); track and sky models refer to images by number, not by texture entry, a "number → file" table was not found. Sky: the domes number their faces, one image file per face.
+- The full track scene is assembled for 45/45 drivable levels; `.TRI` objects are matched to models 266/266.
+- OQ-3: five ship parameters from SHIPS.INI parsed by behaviour (the drag multiplier above the speed limit; the frame counter after a collision; an unused mass field; the threshold and strength of the nose reaction when touching a surface — this is a landing/surface impact, not a nod when braking). Open: angle units, check in the game.
 
 ### 2026-10-22
-- PHY-11: слабые ускорители k = 0.008 (и для ИИ). PHY-19: триггеры — объекты `.TRI`, проверка по коробке объекта на своём участке. OQ-8 закрыт.
-- WPN-3: финишировавший или выбывший корабль не подбирает оружие; WPN-4: набор Time Trial, лимиты экземпляров; WPN-5: порядок выбора; WPN-9: сила нажатия кнопки огня задаёт урон, скорость, толчок. OQ-29, OQ-30 закрыты.
-- Исправление PHY-18: демпфирование подвески задаётся по подтипу покрытия, 7 коэффициентов (прежние 16 значений — ошибка чтения таблицы). OQ-10 закрыт.
-- FMT-24: ИИ ездит по линиям `.SPL`; соглашения данных (вектор «вбок», стыки кусков), нарушение которых ломает езду ИИ.
+- PHY-11: weak boosters k = 0.008 (also for the AI). PHY-19: triggers are `.TRI` objects, checked against the object's box on its own section. OQ-8 closed.
+- WPN-3: a ship that has finished or been eliminated does not pick up weapons; WPN-4: Time Trial set, instance limits; WPN-5: selection order; WPN-9: the force of the fire button press sets damage, speed, push. OQ-29, OQ-30 closed.
+- Correction to PHY-18: suspension damping is set by surface subtype, 7 coefficients (the former 16 values were a table-reading error). OQ-10 closed.
+- FMT-24: the AI drives along `.SPL` lines; data conventions (the "sideways" vector, piece joints) whose violation breaks AI driving.
 
 ### 2026-10-21
-- Данные: FMT-2 (полный состав папки трассы), FMT-3 (`VISI` — маска ячеек модели; после ссылок на полигоны в `TOTS` идут ссылки на свет, затем связи — проверено чтением и записью всех 45 `.TRK` байт в байт; поле секции после флага bit0 — точка возврата, не пит-лейн), FMT-4, FMT-24 (линии ИИ и стартовой решётки; место старта Time Trial), FMT-25 (`.TRI`), FMT-26 (ячейки модели трассы); OQ-27 — формат закрыт. FMT-3 также о роли нормалей вершин у стен.
-- Физика: PHY-25 (удар о стену: точки касания, отталкивание по сглаженной нормали стены); PHY-7 (аэротормоза: нарастание, пределы, «стоп» ниже 100 км/ч, рывки при двух тормозах с газом); PHY-8 (кривая тяги); PHY-9 (продольное сопротивление и боковое трение; тяга проверена по записям); PHY-20 (трамплины и свободный полёт); PHY-22 (правило выбора точки возврата, возврат на трассу после падения с затемнением, без видимого дроида). OQ-2, OQ-6 сужены, OQ-9 закрыт.
-- Корабль: SHIP-5 (экран апгрейдов: цены, показываемые величины, «% upgrade» — доля прокачки p; откат апгрейда возвращает цену полностью); SHIP-6 (порог уничтожения 0.9 и показ щита); SHIP-7 (порядок «оцеления» узлов, когда детали выглядят целыми при ремонте); SHIP-9 (картина уничтожения: развал, капсула пилота, дроид «RESCUE»); SHIP-14 (экран «ship upgraded»); SHIP-15 (не все касания по 1, обломки как частицы, смена вида на 5-м касании, фонарь на старте не двигается). OQ-50 закрыт; OQ-41, OQ-42 закрыты. Пересчёт: 51 · 1 + 20 касаний в среднем по 0.94 = 69.84, остаток 1.16, 72-е касание даёт щит ниже 0.9, то есть 0; итого 71. При «00» на экране корабль может быть жив, но при щите ровно 0 — нет.
-- Гонка: RACE-24 (кредиты за гонку лиги, примеры сходятся: 116 350; 36 650; 19 000; 15 750; 15 993); RACE-7, RACE-22 (пункт меню «catch-up»: off / low / high); RACE-15 (как выглядит призрак); RACE-9 — убрано наблюдение о просадке кадров как не относящееся к поведению игры.
-- FLOW-6: у табло ровно 5 экранов, экраны табло стартовой прямой, заставка перед стартом Time Trial (люк, подъёмник, облёт). FMT-20: лава статична, площадки без анимации подбора, вид площадок после подбора и ускорителей. OQ-39 закрыт.
-- GEN-7: состав файлов PAL/US — табло одинаковое, летающие машины Katmoda 12 только в PAL; катапульта на Alca Vexus 2R в US признана ошибкой US-версии (в порту не воспроизводится), в PAL не повторилась в 5 повторах.
-- OQ-49 снят.
-- SHIP-8: состояние «уничтожен» привязано к порогу щита 0.9 из SHIP-6 (вместо «щит = 0»).
-- OQ-13 сужен до числа «mass» на экране корабля.
+- Data: FMT-2 (full contents of the track folder), FMT-3 (`VISI` — the model cell mask; after the polygon references in `TOTS` come light references, then links — verified by reading and writing all 45 `.TRK` files byte for byte; the section field after the bit0 flag is a respawn point, not a pit lane), FMT-4, FMT-24 (AI lines and the starting grid; Time Trial start position), FMT-25 (`.TRI`), FMT-26 (track model cells); OQ-27 — format closed. FMT-3 also on the role of vertex normals at walls.
+- Physics: PHY-25 (wall impact: contact points, push-off along the smoothed wall normal); PHY-7 (airbrakes: build-up, limits, "stop" below 100 km/h, jerks with two brakes and throttle); PHY-8 (thrust curve); PHY-9 (longitudinal drag and lateral friction; thrust verified against recordings); PHY-20 (ramps and free flight); PHY-22 (rule for choosing the respawn point, return to the track after a fall with a fade-out, no visible droid). OQ-2, OQ-6 narrowed, OQ-9 closed.
+- Ship: SHIP-5 (upgrade screen: prices, displayed values, "% upgrade" — the upgrade share p; rolling back an upgrade returns the price in full); SHIP-6 (destruction threshold 0.9 and shield display); SHIP-7 (order in which nodes "heal", when parts look intact during repair); SHIP-9 (picture of destruction: break-up, pilot capsule, "RESCUE" droid); SHIP-14 ("ship upgraded" screen); SHIP-15 (not all touches count as 1, debris as particles, view change on the 5th touch, the canopy does not move at the start). OQ-50 closed; OQ-41, OQ-42 closed. Recalculation: 51 · 1 + 20 touches averaging 0.94 = 69.84, remainder 1.16, the 72nd touch gives a shield below 0.9, that is 0; total 71. With "00" on screen the ship may be alive, but not with a shield of exactly 0.
+- Race: RACE-24 (credits for a league race, examples agree: 116 350; 36 650; 19 000; 15 750; 15 993); RACE-7, RACE-22 (the "catch-up" menu item: off / low / high); RACE-15 (what the ghost looks like); RACE-9 — the observation about frame-rate drops removed as not relating to game behaviour.
+- FLOW-6: the board has exactly 5 screens, start-straight board screens, the pre-start intro of Time Trial (hatch, lift, fly-around). FMT-20: lava is static, pads have no pickup animation, appearance of pads after pickup and of boosters. OQ-39 closed.
+- GEN-7: PAL/US file composition — the board is the same, the flying machines of Katmoda 12 are PAL-only; the catapult on Alca Vexus 2R in US is recognised as a US-version bug (not reproduced in the port), did not recur in PAL in 5 repeats.
+- OQ-49 withdrawn.
+- SHIP-8: the "destroyed" state is tied to the shield threshold 0.9 from SHIP-6 (instead of "shield = 0").
+- OQ-13 narrowed to the "mass" number on the ship screen.
 
 ### 2026-10-20
-- GEN-8: два вида источников встряски — постоянная сила (Quake, Seismic, уничтожение) и затухающий удар `N` кадров с силой, равной оставшимся кадрам (корабль 10, глыба 20, удар о трассу 5 × урон, объект 30); падающие глыбы льда на Cubiss Float — самая сильная встряска. OQ-47, OQ-48 закрыты.
-- GEN-9: демо-версия игры.
-- PHY-13: касание стены обычно снимает 1 щита, серии касаний; SHIP-7: накопление повреждений от стен и их влияние на разгон, скорость, скольжение; время ремонта 1.44 с PAL / 1.20 с US (US ×1.2 подтверждено; прежнее «1.9 с» было ошибкой подсчёта); пит-лейн возвращает параметры узлов; SHIP-15: порог повреждённого вида, 72 касания (1/71 · 12 = 0.17 за касание; 4 касания — 0.68, 5 — 0.85, 6 — 1).
-- FLOW-3: пит-лейн включён и в Time Trial, выключен в Zone. RACE-9: надпись о медали в Time Trial.
-- GEN-7: итоги заездов лиги на обеих версиях (скольжение, частота подбора оружия, мягче стены); в записях для сравнения версий использовалась неизменённая игра.
-- Метки доказанности приведены к принятым ([✓] / [код]); переводы строк в файлах приведены к LF, добавлен `.gitattributes`.
+- GEN-8: two kinds of shake sources — constant strength (Quake, Seismic, destruction) and a decaying impact of `N` frames with strength equal to the remaining frames (ship 10, ice block 20, track hit 5 × damage, object 30); the falling ice blocks on Cubiss Float are the strongest shake. OQ-47, OQ-48 closed.
+- GEN-9: the demo version of the game.
+- PHY-13: a wall touch usually takes 1 shield, series of touches; SHIP-7: accumulation of wall damage and its effect on acceleration, speed, sliding; repair time 1.44 s PAL / 1.20 s US (US ×1.2 confirmed; the earlier "1.9 s" was a counting error); the pit lane restores node parameters; SHIP-15: damaged-look threshold, 72 touches (1/71 · 12 = 0.17 per touch; 4 touches — 0.68, 5 — 0.85, 6 — 1).
+- FLOW-3: the pit lane is enabled in Time Trial too, disabled in Zone. RACE-9: medal caption in Time Trial.
+- GEN-7: league race results on both versions (sliding, weapon pickup rate, softer walls); the unmodified game was used in the recordings for version comparison.
+- Evidence labels brought to the accepted ones ([✓] / [code]); line endings in files brought to LF, `.gitattributes` added.
 
 ### 2026-10-19
-- GEN-7: отличия американской версии (кадр, часы, подшаги физики, ИИ, данные), разгон US/PAL ×1.2 подтверждён замером [✓]. Пересчёт: 16/16/18 мс → 16.67 мс; 120 · 0.0083 = 0.996; wrong way 140/60 = 2.33 с, 20/60 = 0.33 с. Для PAL новое: блокировка оружейной площадки 0.5 с после подбора (WPN-3), запрет Quake у ботов 5 с (AI-2).
-- Наблюдения на US-версии годятся только для фактов, не зависящих от частоты кадров (правило в README); из RACE-21 убран момент снятия «на 85-й секунде». OQ-46 сужен.
-- FLOW-12 (места недоехавших), RACE-21 (выбывание отставших на круг), RACE-6 (wrong way в Zone), PHY-21 (счётчик лавы), RACE-15. Закрыты OQ-14, OQ-16, OQ-19, OQ-21, OQ-45.
-- RACE-22 (настройки гонки на двоих), RACE-23 (воскрешение), FMT-14 (автомат меню), FMT-12 (поиск строк), TC-34…TC-36. RACE-22 и RACE-23 проверены на изменённой игре: подтверждают формулы, но не поведение оригинального режима целиком.
-- OQ-33 сужен (уровни апгрейдов и пит-лейн в событии разобраны, FMT-8). OQ-40 создан вместе с OQ-38 и OQ-39 (форматы моделей). AI-7 приведён в соответствие с SHIP-14 и SHIP-16; контрольные примеры TC-31 и TC-35 пересчитаны.
-- SHIP-16 (уровни апгрейдов соперников; проверено на 570 кораблях ИИ в 57 записях гонок), FMT-8, TC-33; OQ-12 закрыт.
-- RACE-5 (порядок при равном прогрессе), RACE-7 (резиновая нить: k, эталон, по умолчанию выкл.), FLOW-6 (стартовые рывки ИИ), PHY-11, RACE-21; TC-30…TC-32. OQ-11, OQ-18, OQ-20 закрыты.
-- PHY-24 (пит-лейн по 4 проездам игрока и 12 проездам ИИ, [код] → [✓]), AI-8 (когда ИИ заезжает в пит), FLOW-3, TC-27…TC-29; OQ-17 закрыт.
-- SHIP-14 (доля прокачки → версия корабля и класс скорости 1–4), SHIP-15 (видимые повреждения, оружейный узел, начало анимации фонаря), WPN-17 (урон по человеку ×0.5, действующий щит); уточнены FMT-8, FMT-10, FMT-20, FMT-21 (факелы двигателей); TC-25, TC-26. OQ-38, OQ-43, OQ-44 закрыты.
-- Форматы моделей по файлам данных: FMT-13, FMT-17 (дерево узлов, версии кораблей), FMT-18 (меш и пакеты вершин), FMT-19 (встроенные текстуры кораблей), FMT-20 (особенности трасс), FMT-21 (`SFX_TAGGED.GEO`), FMT-22 (группы деталей: целая и повреждённая версии, обломки), FMT-23 (ключевые кадры; анимация фонаря); TC-23, TC-24. Проверено чтением: 100 % треугольников всех 78 моделей.
+- GEN-7: differences of the American version (frame, clock, physics substeps, AI, data), acceleration US/PAL ×1.2 confirmed by measurement [✓]. Recalculation: 16/16/18 ms → 16.67 ms; 120 · 0.0083 = 0.996; wrong way 140/60 = 2.33 s, 20/60 = 0.33 s. New for PAL: weapon pad lock of 0.5 s after pickup (WPN-3), Quake ban for bots of 5 s (AI-2).
+- Observations on the US version are valid only for facts that do not depend on frame rate (rule in the README); the moment of removal "at the 85th second" removed from RACE-21. OQ-46 narrowed.
+- FLOW-12 (places of those who did not finish), RACE-21 (elimination of those lapped), RACE-6 (wrong way in Zone), PHY-21 (lava counter), RACE-15. OQ-14, OQ-16, OQ-19, OQ-21, OQ-45 closed.
+- RACE-22 (two-player race settings), RACE-23 (resurrection), FMT-14 (menu state machine), FMT-12 (string lookup), TC-34…TC-36. RACE-22 and RACE-23 verified on a modified game: they confirm the formulas, but not the behaviour of the original mode as a whole.
+- OQ-33 narrowed (upgrade levels and the pit lane in the event parsed, FMT-8). OQ-40 created together with OQ-38 and OQ-39 (model formats). AI-7 brought in line with SHIP-14 and SHIP-16; test cases TC-31 and TC-35 recalculated.
+- SHIP-16 (upgrade levels of opponents; verified on 570 AI ships in 57 race recordings), FMT-8, TC-33; OQ-12 closed.
+- RACE-5 (order on equal progress), RACE-7 (rubber band: k, reference, off by default), FLOW-6 (AI start boosts), PHY-11, RACE-21; TC-30…TC-32. OQ-11, OQ-18, OQ-20 closed.
+- PHY-24 (pit lane by 4 player passes and 12 AI passes, [code] → [✓]), AI-8 (when the AI enters the pit), FLOW-3, TC-27…TC-29; OQ-17 closed.
+- SHIP-14 (upgrade share → ship version and speed class 1–4), SHIP-15 (visible damage, weapon node, start of the canopy animation), WPN-17 (damage to a human ×0.5, active shield); FMT-8, FMT-10, FMT-20, FMT-21 (engine flares) refined; TC-25, TC-26. OQ-38, OQ-43, OQ-44 closed.
+- Model formats from game data files: FMT-13, FMT-17 (node tree, ship versions), FMT-18 (mesh and vertex packets), FMT-19 (embedded ship textures), FMT-20 (track peculiarities), FMT-21 (`SFX_TAGGED.GEO`), FMT-22 (part groups: intact and damaged version, debris), FMT-23 (keyframes; canopy animation); TC-23, TC-24. Verified by reading: 100 % of triangles of all 78 models.
 
 ### 2026-10-18
-- Спецификация выделена из заметок исследования; введены ID правил (GEN, FLOW, SHIP, PHY, RACE, AI, WPN, FMT, OQ, TC).
-- Добавлены глоссарий (00), контрольные примеры (09), журнал вопросов, границы спецификации (README).
-- Открытые вопросы пронумерованы (OQ-1…OQ-37), добавлены найденные при перестройке: OQ-11, OQ-15, OQ-16, OQ-23, OQ-29 и др.
-- Убраны остатки внутренних имён оригинала.
+- The specification was separated from the research notes; rule IDs introduced (GEN, FLOW, SHIP, PHY, RACE, AI, WPN, FMT, OQ, TC).
+- Added the glossary (00), test cases (09), the question log, the specification boundaries (README).
+- Open questions numbered (OQ-1…OQ-37), those found during the restructuring added: OQ-11, OQ-15, OQ-16, OQ-23, OQ-29 and others.
+- Remnants of the original's internal names removed.

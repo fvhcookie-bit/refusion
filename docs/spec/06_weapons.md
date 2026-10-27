@@ -1,259 +1,258 @@
-﻿# 06. Оружие
+# 06. Weapons
 
-## WPN-1. Виды оружия и их номера [✓]
-Номер вида фиксирован: он используется как номер бита в маске открытого оружия и как индекс весов в профиле (FMT-10)
-и в маске оружия события (FMT-8).
+## WPN-1. Weapon types and their numbers [✓]
+The type number is fixed: it is used as the bit number in the unlocked-weapons mask and as the weight index in the profile (FMT-10)
+and in the event weapon mask (FMT-8).
 
-| # | оружие | # | оружие | # | оружие |
+| # | weapon | # | weapon | # | weapon |
 |---|---|---|---|---|---|
 | 0 | Turbo | 9 | Power Swarm | 18 | AG Stinger |
-| 1 | Autopilot | 10 | Shield Drain | 19 | Proton Cannon (25 выстрелов) |
+| 1 | Autopilot | 10 | Shield Drain | 19 | Proton Cannon (25 shots) |
 | 2 | Rocket | 11 | Nitro Rocket | 20 | Shield Raider |
-| 3 | Mines (5 штук) | 12 | Penetrator | 21 | Hunter Missile |
-| 4 | Missile | 13 | Flamer (99 единиц топлива) | 22 | Turbo Enforcer |
+| 3 | Mines (5 pieces) | 12 | Penetrator | 21 | Hunter Missile |
+| 4 | Missile | 13 | Flamer (99 units of fuel) | 22 | Turbo Enforcer |
 | 5 | Quake | 14 | Plasma Bolt | 23 | Stealth |
 | 6 | Gravity Bomb | 15 | Seismic Field | 24 | Global Drain |
 | 7 | Super Missiles | 16 | Grenades | 25 | Shield |
 | 8 | Orbital Laser | 17 | Bio Snare | 26 | Control Jammer |
 
-Других видов оружия реализация не требует. [✓]
+The implementation does not require any other weapon types. [✓]
 
-## WPN-2. Супероружие команд [код]
+## WPN-2. Team super weapons [code]
 Feisar — Super Missiles, Van-Uber — Seismic Field, G-Tech — Bio Snare, Auricom — Orbital Laser,
 EG-R — Power Swarm, Tigron — Nitro Rocket, Xios — Shield Drain, Piranha — Penetrator.
 
-## WPN-3. Условия подбора на оружейной площадке [код; ✓ наблюдение игрока]
-Оружие выдаётся кораблю, который проехал по оружейной площадке (PHY-19), если площадки в этой гонке включены
-(FLOW-3), у корабля нет оружия, щит > 0, корабль не финишировал и не выбыл из гонки (у финишировавшего или
-выбывшего текущее оружие пропадает, новое не выдаётся).
-- Срабатывает **проезд по площадке** (зона действия), а не касание её края; площадка после выдачи сразу гаснет
-  [✓ наблюдение игрока].
-- После выдачи площадка **0.5 с в EU-версии (50 подшагов) и 1 с в US-версии** никому оружие не выдаёт; отсчёт идёт
-  по подшагам и в паузе стоит [код; GEN-7].
-- Корабль, у которого уже есть оружие, площадку не гасит и оружия не получает [✓ наблюдение игрока].
-- В Time Trial площадки не действуют; турбо-ускорение срабатывает на каждом пересечении финишной черты
-  [✓ наблюдение игрока].
+## WPN-3. Pickup conditions on a weapon pad [code; ✓ player observation]
+A weapon is given to a ship that has driven over a weapon pad (PHY-19) if pads are enabled in this race
+(FLOW-3), the ship has no weapon, its shield is > 0, and the ship has not finished or been eliminated from the race (for a finished or
+eliminated ship the current weapon is lost and no new one is given).
+- What triggers it is **driving over the pad** (the area of effect), not touching its edge; after giving out a weapon the pad goes dark immediately
+  [✓ player observation].
+- After a weapon is given out, the pad gives **no weapon to anyone for 0.5 s in the EU version (50 substeps) and 1 s in the US version**; the countdown runs
+  in substeps and stands still during pause [code; GEN-7].
+- A ship that already has a weapon does not turn the pad off and does not receive a weapon [✓ player observation].
+- In Time Trial pads do not work; the turbo boost triggers on every crossing of the finish line
+  [✓ player observation].
 
-## WPN-4. Кандидаты [код]
-1. Кандидаты — оружие, открытое в профиле игрока (FMT-10). Из них убираются супероружия всех команд; если у игрока
-   открыто супероружие **его** команды, то каждому кораблю добавляется супероружие **команды этого корабля**.
-2. Одиночные режимы: убираются Hunter Missile, Turbo Enforcer, Stealth, Global Drain, Control Jammer.
-   Режимы на двоих: людям эти 5 видов, наоборот, добавляются; ботам никогда не выпадает Global Drain;
-   дальше действует фильтр настроек мультиплеера. Shield не убирается.
-3. Маска оружия события (FMT-8), если задана; **в Time Trial дополнительно убираются Autopilot, Mines, Bio Snare и
-   AG Stinger** [код]; виды, у которых исчерпан лимит одновременно существующих экземпляров, убираются [код]:
+## WPN-4. Candidates [code]
+1. Candidates are the weapons unlocked in the player's profile (FMT-10). The team super weapons of all teams are removed from them; if the player
+   has unlocked the super weapon of **their own** team, then every ship gets the super weapon of **that ship's team** added.
+2. Single-player modes: Hunter Missile, Turbo Enforcer, Stealth, Global Drain, Control Jammer are removed.
+   Two-player modes: these 5 types are, on the contrary, added for humans; bots never get Global Drain;
+   after that the multiplayer settings filter applies. Shield is not removed.
+3. The event weapon mask (FMT-8), if set; **in Time Trial Autopilot, Mines, Bio Snare and
+   AG Stinger are additionally removed** [code]; types whose limit of simultaneously existing instances is exhausted are removed [code]:
 
-   | лимит | виды |
+   | limit | types |
    |---|---|
    | 1 | Quake |
    | 2 | Super Missiles, Orbital Laser, Power Swarm, Shield Drain, Nitro Rocket, Penetrator, Flamer, Seismic Field, Bio Snare, Stealth, Global Drain |
    | 5 | Gravity Bomb, Shield |
    | 10 | Plasma Bolt, Grenades, AG Stinger, Hunter Missile, Turbo Enforcer, Control Jammer |
    | 50 | Turbo, Autopilot, Rocket, Mines, Missile |
-   | 1000 | Proton Cannon (фактически без лимита) |
-   | 0 | Shield Raider — никогда не выпадает как предмет |
+   | 1000 | Proton Cannon (effectively no limit) |
+   | 0 | Shield Raider — never drops as an item |
 
-## WPN-5. Взвешенный выбор [код]
-Случайный выбор среди кандидатов с весами из профиля (27 весов, FMT-10), генератор GEN-4.
-Если выпало то же оружие, что этот корабль получал в прошлый раз, и кандидатов не меньше двух — перебросить.
-Выбор [код]: сумма весов оставшихся кандидатов × случайное число из [0, 1) — порог; виды перебираются по порядку
-номеров (0…26), веса накапливаются, берётся первый вид, на котором сумма достигла порога.
+## WPN-5. Weighted selection [code]
+A random choice among the candidates with the weights from the profile (27 weights, FMT-10), generator GEN-4.
+If the same weapon comes up that this ship received last time, and there are at least two candidates — re-roll.
+The selection [code]: the sum of the weights of the remaining candidates × a random number from [0, 1) is the threshold; the types are iterated in order of
+number (0…26), the weights are accumulated, and the first type at which the sum reaches the threshold is taken.
 
-## WPN-6. Огонь: что делает каждый вид [код; ✓ наблюдение игрока]
-- Turbo, Autopilot — срабатывают сразу (WPN-16).
-- **Rockets** (3 штуки) — выстреливаются подряд вдоль продольной оси корабля, без управления, но по геометрии
-  трассы (WPN-21). Вперёд или назад — по «взгляду назад» (WPN-7) [✓ наблюдение игрока].
-- **Missile** (1 штука) — самонаведение: захватывает цель и следует за ней; дальность захвата ограничена; при этом
-  снаряд идёт по геометрии трассы (WPN-21). Вперёд или назад — по «взгляду назад» [✓ наблюдение игрока].
-  Время полёта — OQ-31.
-- **Super Missiles** (Feisar, 3 штуки) — как Missile, включая полёт по геометрии трассы (WPN-21), но захватывают
-  до 3 целей: при одной захваченной цели все три ракеты идут в неё, при трёх — по одной на свою цель [✓ наблюдение игрока, PAL].
-- **Mines** (5 штук) — кладутся на месте корабля, пока зажата кнопка огня; от «взгляда назад» не зависят;
-  подрываются одинаково на игроке и на ботах [✓ наблюдение игрока]. Время жизни мин — OQ-31.
-- **Quake** — волна, идущая по геометрии трассы (перепады высот, скручивание, разделение и слияние участков),
-  вперёд или назад по «взгляду назад»; по пути временно деформирует меш трассы, по краям бьют искры [✓ наблюдение игрока, PAL]. Прохождение трамплинов, где трассы нет, — OQ-31.
-- **Grenades** (3 штуки) — бросаются одновременно небольшим веером; вперёд или назад — по «взгляду назад»
-  [✓ наблюдение игрока]. Летят по свободной траектории (WPN-21), а не вдоль геометрии трассы, и могут вылететь
-  за её пределы: вылетевшая граната взрывается или исчезает [✓ наблюдение игрока].
-- **Power Swarm** — супероружие команды (WPN-2): выпускает рой из 1–5 дронов, которые летят к кораблю противника
-  и постепенно снижают его щит [✓ наблюдение игрока].
-- **Proton Cannon** (25 зарядов) — скорострельный «пулемёт»: очередь вперёд, по геометрии трассы, без
-  наведения, назад не стреляет (WPN-22) [✓ наблюдение игрока].
-- Mines и Proton Cannon тратят запас; остальное оружие исчезает после выстрела.
+## WPN-6. Firing: what each type does [code; ✓ player observation]
+- Turbo, Autopilot — take effect immediately (WPN-16).
+- **Rockets** (3 pieces) — fired one after another along the ship's longitudinal axis, unguided, but following the track
+  geometry (WPN-21). Forward or backward — depending on "look back" (WPN-7) [✓ player observation].
+- **Missile** (1 piece) — homing: locks onto a target and follows it; the lock range is limited; the
+  projectile follows the track geometry (WPN-21). Forward or backward — depending on "look back" [✓ player observation].
+  Flight time — OQ-31.
+- **Super Missiles** (Feisar, 3 pieces) — like Missile, including flight along the track geometry (WPN-21), but they lock
+  up to 3 targets: with one locked target all three missiles go for it, with three — one each to its own target [✓ player observation, PAL].
+- **Mines** (5 pieces) — laid at the ship's position while the fire button is held; they do not depend on "look back";
+  they detonate the same way on the player and on bots [✓ player observation]. Mine lifetime — OQ-31.
+- **Quake** — a wave travelling along the track geometry (height changes, twisting, splitting and merging of sections),
+  forward or backward depending on "look back"; along the way it temporarily deforms the track mesh, and sparks fly at the edges [✓ player observation, PAL]. Passing over jumps where there is no track — OQ-31.
+- **Grenades** (3 pieces) — thrown simultaneously in a small fan; forward or backward — depending on "look back"
+  [✓ player observation]. They fly on a free trajectory (WPN-21), not along the track geometry, and can fly out
+  beyond its bounds: a grenade that has flown out explodes or disappears [✓ player observation].
+- **Power Swarm** — team super weapon (WPN-2): releases a swarm of 1–5 drones that fly to the opponent's ship
+  and gradually reduce its shield [✓ player observation].
+- **Proton Cannon** (25 charges) — a rapid-fire "machine gun": a burst forward, along the track geometry, without
+  homing; it does not fire backward (WPN-22) [✓ player observation].
+- Mines and Proton Cannon use up a stock; the other weapons disappear after firing.
 
-## WPN-7. Взгляд назад [код; ✓ наблюдение игрока]
-Пока зажат «взгляд назад», снаряды летят назад. Для ракет, Super Missiles и Quake это проверено [✓ наблюдение игрока, PAL]. Мины от взгляда не зависят: они остаются на месте (WPN-6).
+## WPN-7. Look back [code; ✓ player observation]
+While "look back" is held, projectiles fly backward. This has been verified for rockets, Super Missiles and Quake [✓ player observation, PAL]. Mines do not depend on look back: they stay in place (WPN-6).
 
-## WPN-8. Сбросить / поглотить [код; ✓ наблюдение игрока]
-Обычное оружие при нажатии выбрасывается, корабль остаётся без оружия. Особый предмет — только **Shield**: нажатие
-прекращает его действие, не выбрасывая оружие; щит поглощает любой входящий урон и перекрашивается при этом
+## WPN-8. Drop / absorb [code; ✓ player observation]
+An ordinary weapon is thrown away when the button is pressed, and the ship is left without a weapon. The only special item is **Shield**: pressing
+ends its effect without discarding the weapon; the shield absorbs any incoming damage and changes colour while doing so
 (WPN-23).
-В режиме Endurance эта кнопка вместо сброса стреляет Proton Cannon
-из запаса, если запас не пуст.
+In Endurance mode this button, instead of dropping, fires Proton Cannon
+from the stock, if the stock is not empty.
 
-## WPN-9. Урон [✓ для Gravity Bomb; зависимость от силы нажатия — код, в игре не проверялась]
-`урон = значение_из_WEAPONSTATS (между Dam_<оружие>_Max и _Min) × weapon_standard стреляющего` (SHIP-3, SHIP-5).
-**Положение между Max и Min задаёт сила нажатия кнопки огня** в момент выстрела (кнопки геймпада чувствительны к
-давлению; 0…255 → p = 0…1): `значение = Min + (Max − Min) × (1 − p)` — **лёгкое нажатие даёт больше, полное — меньше**
-[код]. Так же считаются скорость снаряда (`Spd_*`) и толчок (`Force_*`), но без множителя weapon_standard.
-У Proton Cannon давление запоминается отдельно (особый случай). С цифровой кнопкой (давление всегда полное) всегда
-выходит Min — это нужно учитывать при наблюдениях.
-Значения по умолчанию из файла: Rocket 6/2, Mines 3, Missile 5/2, Quake 13, Gravity Bomb 14, Super Missiles 20/15,
+## WPN-9. Damage [✓ for Gravity Bomb; dependence on press strength — code, not verified in the game]
+`damage = value_from_WEAPONSTATS (between Dam_<weapon>_Max and _Min) × weapon_standard of the firing ship` (SHIP-3, SHIP-5).
+**The position between Max and Min is set by the pressure of the fire button** at the moment of firing (gamepad buttons are
+pressure-sensitive; 0…255 → p = 0…1): `value = Min + (Max − Min) × (1 − p)` — **a light press gives more, a full press gives less**
+[code]. Projectile speed (`Spd_*`) and knockback (`Force_*`) are computed the same way, but without the weapon_standard multiplier.
+For Proton Cannon the pressure is stored separately (a special case). With a digital button (pressure always full) the result is always
+Min — this must be taken into account in observations.
+Default values from the file: Rocket 6/2, Mines 3, Missile 5/2, Quake 13, Gravity Bomb 14, Super Missiles 20/15,
 Orbital Laser 30, Penetrator 25/15, Plasma Bolt 100, Seismic Field 30, Grenades 5/3, AG Stinger 7, Hunter Missile 15
-(полный список — `WEAPONSTATS.INI`, FMT-5).
+(the full list is in `WEAPONSTATS.INI`, FMT-5).
 
-## WPN-10. Эффект попадания [✓ покадровые наблюдения: 241 попадание по ИИ, 10 по игроку]
-Для Rocket, Mines, Missile, Quake, Super Missiles, Orbital Laser, Penetrator, Seismic Field, Grenades,
+## WPN-10. Hit effect [✓ frame-by-frame observations: 241 hits on AI, 10 on the player]
+For Rocket, Mines, Missile, Quake, Super Missiles, Orbital Laser, Penetrator, Seismic Field, Grenades,
 Hunter Missile, Global Drain:
-- **ИИ**: помечается «поражён» ровно на **3.0 с**; на скорость это не влияет.
-- **Человек**: таймер на 100 кадров; пока до конца больше 25 кадров, множитель максимальной скорости уменьшается
-  на 0.01 за кадр, затем растёт на 0.04 за кадр; пределы [0.1, 1]. На практике: провал до **0.24** и возврат,
-  всего **1.9 с** (TC-8). Множитель входит в PHY-4.
-- У Penetrator есть дополнительный эффект: см. WPN-18.
-Plasma Bolt, Gravity Bomb, AG Stinger и некоторые другие имеют собственные эффекты (ниже).
+- **AI**: is marked "hit" for exactly **3.0 s**; this does not affect speed.
+- **Human**: a timer of 100 frames; while more than 25 frames remain until the end, the maximum-speed multiplier decreases
+  by 0.01 per frame, then grows by 0.04 per frame; limits [0.1, 1]. In practice: a dip to **0.24** and back,
+  **1.9 s** in total (TC-8). The multiplier enters into PHY-4.
+- Penetrator has an additional effect: see WPN-18.
+Plasma Bolt, Gravity Bomb, AG Stinger and some others have their own effects (below).
 
-## WPN-11. Plasma Bolt [✓ запись; ✓ наблюдение игрока]
-Самое мощное оружие в игре: урон 100 больше щита любого корабля, попадание **уничтожает с одного выстрела**.
-- При подборе — **только один заряд** [✓ наблюдение игрока].
-- Перед выстрелом идёт **зарядка** (порядка 1–2 с), затем вылетает пучок плазмы [✓ наблюдение игрока].
-- Пучок летит вдоль продольной оси корабля и **следует за геометрией трассы**, без наведения; сплэша нет
-  [✓ наблюдение игрока].
-- Снаряд летит ~2 с (в записи: выстрел 16.06 с, попадание 18.02 с, щит 77 → 0 за один кадр).
-- Не установлено: точная длительность зарядки, дальность пучка, стреляет ли он назад по «взгляду назад» — OQ-31.
+## WPN-11. Plasma Bolt [✓ recording; ✓ player observation]
+The most powerful weapon in the game: a damage of 100 exceeds the shield of any ship, and a hit **destroys with one shot**.
+- On pickup — **only one charge** [✓ player observation].
+- Before firing there is a **charge-up** (on the order of 1–2 s), then a beam of plasma flies out [✓ player observation].
+- The beam flies along the ship's longitudinal axis and **follows the track geometry**, without homing; no splash
+  [✓ player observation].
+- The projectile flies for ~2 s (in the recording: shot at 16.06 s, hit at 18.02 s, shield 77 → 0 in one frame).
+- Not established: the exact charge-up duration, the beam range, whether it fires backward with "look back" — OQ-31.
 
 ## WPN-12. Gravity Bomb [✓]
-После подрыва от точки разрыва расширяется сфера. Таймер c идёт от 50 до 0 (по кадрам); каждый **4-й** кадр
-проверяются корабли:
-- корабль поражён, если `расстояние² < (50 − c)·2000` (радиус растёт до ≈ 316);
-- сила `k = c / 50` — чем позже волна дошла до корабля, тем слабее;
-- за одну проверку поражается **не больше одного** корабля, каждый корабль — только один раз;
-- корабли, выбывшие из гонки, не поражаются [код];
-- урон = `14 × weapon_standard_стрелка × k`, толчок × k, плюс эффект AG Stinger (WPN-14) длительностью `125·k` кадров
-  (целая часть).
-Проверка — TC-9. Если у цели активен защитный предмет, эффект другой (OQ-31). [?]
+After detonation a sphere expands from the point of the blast. The timer c runs from 50 to 0 (in frames); every **4th** frame
+the ships are checked:
+- a ship is hit if `distance² < (50 − c)·2000` (the radius grows up to ≈ 316);
+- the strength is `k = c / 50` — the later the wave reaches the ship, the weaker it is;
+- **at most one** ship is hit per check, and each ship only once;
+- ships eliminated from the race are not hit [code];
+- damage = `14 × weapon_standard_of_shooter × k`, knockback × k, plus the AG Stinger effect (WPN-14) lasting `125·k` frames
+  (integer part).
+Verification — TC-9. If the target has a protective item active, the effect is different (OQ-31). [?]
 
-## WPN-13. Quake [✓ частично]
-Волна идёт по геометрии трассы (вдоль сплайнов): повторяет перепады высот и скручивание, проходит разделение и
-слияние участков; задевает несколько кораблей. В записи: −14.3 одному и 3.3 + 3.05 другому; у обоих — эффект
-попадания (WPN-10). Вид: волна бежит по трассе вперёд или назад (по «взгляду назад»), временно деформируя меш
-трассы; по краям бьют искры [✓ наблюдение игрока]. Прохождение трамплинов, где трассы нет, не установлено
+## WPN-13. Quake [✓ partly]
+The wave travels along the track geometry (along the splines): it follows height changes and twisting, passes through the splitting and
+merging of sections; it hits several ships. In the recording: −14.3 to one and 3.3 + 3.05 to another; both receive the
+hit effect (WPN-10). Appearance: the wave runs along the track forward or backward (depending on "look back"), temporarily deforming the track
+mesh; sparks fly at the edges [✓ player observation]. Passing over jumps where there is no track is not established
 (OQ-31).
 
-## WPN-14. AG Stinger [✓ 12 попаданий, полный цикл 2.0 с]
-Попадание запоминает текущие живые `maxspeed` и `rollmaxangle` и запускает эффект длиной 100 кадров из трёх фаз:
-- **сжатие, кадры 1–20**: `rollmaxangle` линейно сжимается к 100 — доля разницы между исходным значением и 100
-  уменьшается на 0.05 за кадр (от 1 на первом кадре до 0.05 на двадцатом): `rollmaxangle = 100 + (исходный − 100)·(1 − 0.05·k)`, k = 0…19 — номер кадра фазы, считая с нуля;
-- **удержание, кадры 21–80 (60 кадров)**: каждый кадр максимальная скорость (`maxspeed`) умножается на 0.5 (корабль глохнет); поправка высоты (PHY-5)
-  уменьшается на 0.3 за кадр до −2.5 (корабль проседает); корабль раскачивается в случайную сторону, сторона
-  меняется каждые 40–79 кадров (GEN-4);
-- **восстановление, кадры 81–100 (20 кадров)**: доля разницы `rollmaxangle` растёт на 0.05 за кадр (от 0 на первом кадре до 0.95 на двадцатом):
-  `rollmaxangle = 100 + (исходный − 100)·0.05·k`, k = 0…19 — номер кадра фазы, считая с нуля; поправка высоты умножается на 0.8 за кадр;
-- после последнего кадра восстановлены исходные `rollmaxangle` и `maxspeed`, поправка высоты = 0.
-Кроме того, одна составляющая сопротивления умножается на `(1 − t/100)·10` (PHY-9). [код]
+## WPN-14. AG Stinger [✓ 12 hits, full cycle 2.0 s]
+A hit remembers the current live `maxspeed` and `rollmaxangle` and starts an effect of 100 frames in three phases:
+- **compression, frames 1–20**: `rollmaxangle` is linearly compressed toward 100 — the fraction of the difference between the original value and 100
+  decreases by 0.05 per frame (from 1 on the first frame to 0.05 on the twentieth): `rollmaxangle = 100 + (original − 100)·(1 − 0.05·k)`, k = 0…19 — the frame number within the phase, counting from zero;
+- **hold, frames 21–80 (60 frames)**: every frame the maximum speed (`maxspeed`) is multiplied by 0.5 (the ship stalls); the height correction (PHY-5)
+  decreases by 0.3 per frame down to −2.5 (the ship sags); the ship sways to a random side, and the side
+  changes every 40–79 frames (GEN-4);
+- **recovery, frames 81–100 (20 frames)**: the fraction of the `rollmaxangle` difference grows by 0.05 per frame (from 0 on the first frame to 0.95 on the twentieth):
+  `rollmaxangle = 100 + (original − 100)·0.05·k`, k = 0…19 — the frame number within the phase, counting from zero; the height correction is multiplied by 0.8 per frame;
+- after the last frame the original `rollmaxangle` and `maxspeed` are restored, and the height correction = 0.
+In addition, one drag component is multiplied by `(1 − t/100)·10` (PHY-9). [code]
 
-## WPN-18. Penetrator [✓ наблюдение игрока]
-Особое оружие команды Piranha (WPN-2). При применении:
-- даёт кораблю **ускорение**;
-- на носу корабля появляется **энергетический таран** — видимый нарост на носовой части.
-Воздействие тарана на корабли противников и его урон **не изучены** (OQ-31); попадание самого Penetrator входит в
-общий эффект попадания (WPN-10).
+## WPN-18. Penetrator [✓ player observation]
+A special weapon of team Piranha (WPN-2). When used:
+- it gives the ship an **acceleration**;
+- an **energy ram** appears on the ship's nose — a visible growth on the front part.
+The effect of the ram on opponents' ships and its damage are **not studied** (OQ-31); the hit of Penetrator itself is part of the
+general hit effect (WPN-10).
 
-## WPN-19. Снято
-ID не переиспользуется.
+## WPN-19. Removed
+The ID is not reused.
 
-## WPN-20. Flamer [✓ наблюдение игрока]
-Огнемёт: ближнее оружие с малой дальностью и низким уроном.
-- Выпускает струю пламени вперёд; назад по «взгляду назад» — не проверено (OQ-31).
-- Струя летит **по свободной траектории** (см. WPN-21): ни вдоль геометрии трассы, ни к цели; поэтому на
-  поворотах она не заворачивает вместе с трассой, а перепады высот и скручивание трассы не учитывает вовсе.
-- Попадание накладывает на корабль **видимый эффект «в огне»**, но сам эффект **урона по времени не наносит**:
-  урон только от попаданий струи.
-- Расходуется запас (в списке — 99 единиц топлива); когда запас кончился, оружие исчезает (WPN-6).
-- Не установлено: выстрел назад, точная дальность, расход топлива за выстрел — OQ-31.
+## WPN-20. Flamer [✓ player observation]
+A flamethrower: a short-range weapon with low range and low damage.
+- Emits a jet of flame forward; backward with "look back" — not verified (OQ-31).
+- The jet flies **on a free trajectory** (see WPN-21): neither along the track geometry nor toward a target; therefore in
+  corners it does not curve with the track, and it ignores height changes and twisting of the track altogether.
+- A hit puts a **visible "on fire" effect** on the ship, but the effect itself **does not deal damage over time**:
+  the damage comes only from the jet's hits.
+- It uses up a stock (in the list — 99 units of fuel); when the stock runs out, the weapon disappears (WPN-6).
+- Not established: firing backward, the exact range, the fuel consumption per shot — OQ-31.
 
-## WPN-21. Виды полёта снарядов [✓ наблюдение игрока]
-Снаряды различаются тем, учитывают ли они геометрию трассы (перепады высот, скручивание, мёртвые петли,
-разделение и слияние участков):
-- **вдоль геометрии трассы** — снаряд идёт по трассе и повторяет её форму, включая разделение и слияние участков;
-  без наведения он не пройдёт поворот, но на петле или спуске не потеряется: Quake (WPN-13); Rocket, Missile,
+## WPN-21. Projectile flight types [✓ player observation]
+Projectiles differ in whether they take the track geometry into account (height changes, twisting, loops,
+splitting and merging of sections):
+- **along the track geometry** — the projectile follows the track and repeats its shape, including the splitting and merging of sections;
+  without homing it will not make a corner, but it will not get lost on a loop or a descent: Quake (WPN-13); Rocket, Missile,
   Super Missiles (WPN-6); Plasma Bolt (WPN-11); Proton Cannon (WPN-22);
-- **по свободной траектории** — снаряд не учитывает ни геометрию трассы, ни цели: летит прямо вдоль продольной оси
-  корабля или по своей траектории, поэтому уходит от трассы на перепадах высот и может вылететь за её пределы:
+- **on a free trajectory** — the projectile takes into account neither the track geometry nor targets: it flies straight along the ship's longitudinal axis
+  or along its own trajectory, so it leaves the track at height changes and can fly beyond its bounds:
   Grenades, Flamer (WPN-6, WPN-20);
-- **с наведением** — снаряд идёт к выбранной цели: Missile, Super Missiles (WPN-6).
-Наведение и следование геометрии друг друга не исключают.
-Следование геометрии не означает наведения: Proton Cannon идёт по трассе, но в цель не наводится (WPN-22).
-Не установлено: проходит ли волна Quake трамплины, где трассы нет (OQ-31).
-Вид полёта конкретного оружия указан в графе «что описано» таблицы WPN-16.
+- **homing** — the projectile goes to the chosen target: Missile, Super Missiles (WPN-6).
+Homing and following the geometry do not exclude each other.
+Following the geometry does not mean homing: Proton Cannon follows the track, but does not home in on a target (WPN-22).
+Not established: whether the Quake wave passes over jumps where there is no track (OQ-31).
+The flight type of a particular weapon is given in the "what is described" column of the WPN-16 table.
 
-## WPN-22. Proton Cannon [✓ наблюдение игрока, PAL; числа — ✓ изменённая игра, PAL]
-Скорострельное оружие игры, местный «пулемёт».
-- **При подборе несколько зарядов — 25**; стреляет, пока запас не кончится, затем оружие исчезает (WPN-6).
-- **Стреляет быстро**: выстрелы идут очередью, а не по одному на нажатие. При зажатой кнопке — **примерно 25 выстрелов
-  в секунду** (как правило, интервал 0,04 с), поэтому заряд из 25 выстрелов расходуется меньше чем за секунду
-  [✓ изменённая игра, PAL; оружие выдавалось принудительно, 25 по записи совпадает с запасом при выдаче].
-- Снаряды летят **по геометрии трассы** (WPN-21), без наведения.
-- **Назад не стреляет** [✓ наблюдение игрока].
-- Попадания **сильно сбивают стабильность** корабля (эффект попадания WPN-10) — описание игрока, по записи
-  гонки не подтверждено.
+## WPN-22. Proton Cannon [✓ player observation, PAL; numbers — ✓ modified game, PAL]
+A rapid-fire weapon of the game, the local "machine gun".
+- **On pickup, several charges — 25**; it fires until the stock runs out, then the weapon disappears (WPN-6).
+- **Fires fast**: shots come in a burst, not one per press. With the button held — **about 25 shots
+  per second** (typically an interval of 0.04 s), so a charge of 25 shots is used up in less than a second
+  [✓ modified game, PAL; the weapon was given forcibly, 25 matches the stock at pickup according to the recording].
+- The projectiles fly **along the track geometry** (WPN-21), without homing.
+- **It does not fire backward** [✓ player observation].
+- Hits **strongly upset the stability** of the ship (hit effect WPN-10) — the player's description, not confirmed by the
+  race recording.
 
-Измерено в записи гонки (Arcade, 16 кораблей, оружие выдавалось принудительно; попадания определены по падению щита соперника,
-снаряды в записи не видны; выборка — 89 попаданий примерно в четверти выстрелов, когда цель была впереди,
-сосредоточены на нескольких кораблях) [✓ изменённая игра, PAL, оценка по эвристике]:
-- **Урон щиту**: одно попадание по кораблю соперника снимает малую долю щита — порядка 0,2 % его запаса (в пределах
-  0,05–0,5 %); у разных кораблей по-разному, с расстоянием убывает слабо.
-- **Дальность попаданий**: чаще до ~100 единиц расстояния игры, до ~400 в записи (для сравнения: круг трассы —
-  около 14 900 таких единиц) [?: масштаб в spec не определён].
-- Часть попаданий добавляет небольшое повреждение, относящееся к устойчивости корабля (порядка 0,3–1,3 % шкалы за
-  попадание, не каждое попадание) [?; изменённая игра, PAL].
-- **Влияние попаданий на скорость и линию движения соперников не подтверждено**: в записи (боты, 36 серий попаданий)
-  изменение скорости за секунду после серии лежало в пределах разброса контрольных моментов, боковой сдвиг был немного
-  больше контрольного. Это не доказывает отсутствие эффекта: выборка мала и сосредоточена на нескольких ботах, эффект на
-  корабле игрока и визуальный эффект не изучались [?; изменённая игра, PAL].
-- Не установлено: точная дальность полёта снаряда, урон по стабильности числом, влияние на скорость и линию — OQ-31.
+Measured in a race recording (Arcade, 16 ships, the weapon was given forcibly; hits determined by the drop of the opponent's shield,
+projectiles are not visible in the recording; sample — 89 hits in about a quarter of the shots, when the target was ahead,
+concentrated on a few ships) [✓ modified game, PAL, estimate by heuristic]:
+- **Damage to the shield**: one hit on an opponent's ship removes a small fraction of the shield — on the order of 0.2 % of its stock (within
+  0.05–0.5 %); it differs between ships, and decreases only weakly with distance.
+- **Hit range**: mostly up to ~100 game distance units, up to ~400 in the recording (for comparison: a track lap is
+  about 14 900 such units) [?: the scale is not defined in the spec].
+- Some hits add a small amount of damage related to the stability of the ship (on the order of 0.3–1.3 % of the scale per
+  hit, not every hit) [?; modified game, PAL].
+- **The effect of hits on the speed and line of opponents is not confirmed**: in the recording (bots, 36 series of hits) the
+  change in speed over the second after a series lay within the spread of the control moments, and the lateral shift was slightly
+  larger than the control. This does not prove the absence of an effect: the sample is small and concentrated on a few bots, the effect on
+  the player's ship and the visual effect were not studied [?; modified game, PAL].
+- Not established: the exact projectile range, the stability damage as a number, the effect on speed and line — OQ-31.
 
-## WPN-23. Shield [✓ наблюдение игрока]
-Особый предмет-защита (WPN-8):
-- корабль окружает **непроницаемый щит**, который поглощает **любой входящий урон** — от любого оружия и взрывов;
-- действует **определённое время**, затем исчезает;
-- при поглощении урона щит **визуально меняет цвет с синего на красный**: чем больше урона поглощено, тем сильнее
-  окраска [✓ наблюдение игрока];
-- щит относится к особым предметам: при нажатии прекращает действие, а не выбрасывается (WPN-8);
-- урон поглощается, но не накапливается для ответа: атакующий ничего не получает (WPN-17).
-Не установлено: длительность действия, сколько урона выдерживает и как быстро перекрашивается, действует ли при
-таране Penetrator и в каком порядке расходуется против Gravity Bomb (OQ-31).
+## WPN-23. Shield [✓ player observation]
+A special protective item (WPN-8):
+- the ship is surrounded by an **impenetrable shield** that absorbs **any incoming damage** — from any weapon and explosions;
+- it works for a **certain time**, then disappears;
+- when absorbing damage the shield **visually changes colour from blue to red**: the more damage absorbed, the stronger the
+  colouring [✓ player observation];
+- the shield is a special item: pressing it ends its effect rather than discarding it (WPN-8);
+- damage is absorbed but not accumulated for a counter-attack: the attacker gets nothing (WPN-17).
+Not established: the duration of the effect, how much damage it withstands and how fast it changes colour, whether it works against
+the Penetrator ram and in what order it is consumed against Gravity Bomb (OQ-31).
 
-## WPN-15. WEAPONSTATS.INI [✓ формат]
-133 параметра: `Dam_*` (урон), `Spd_*` (скорость снаряда), `Force_*` (толчок), `LockDist_*` (дальность захвата),
-задержки Proton Cannon и мин; почти все парами `_Max` / `_Min`. Ключи и значения — в самом файле (FMT-5).
+## WPN-15. WEAPONSTATS.INI [✓ format]
+133 parameters: `Dam_*` (damage), `Spd_*` (projectile speed), `Force_*` (knockback), `LockDist_*` (lock range),
+Proton Cannon and mine delays; nearly all in `_Max` / `_Min` pairs. Keys and values are in the file itself (FMT-5).
 
-## WPN-16. Что известно о каждом виде [✓ наблюдение игрока, где указано]
-| оружие | что описано | чего не хватает (OQ-31) |
+## WPN-16. What is known about each type [✓ player observation, where indicated]
+| weapon | what is described | what is missing (OQ-31) |
 |---|---|---|
-| Turbo | рывок | сила рывка |
-| Autopilot | управляет ИИ | длительность |
-| Rocket | 3 штуки подряд, вперёд/назад, без управления, идут по геометрии трассы (WPN-6, WPN-21) | дальность и время полёта |
-| Missile | самонаведение с ограниченной дальностью захвата, идёт по геометрии трассы (WPN-6, WPN-21) | время полёта, условия срыва захвата |
-| Super Missiles | до 3 целей; при одной цели все три идут в неё; идут по геометрии трассы (WPN-6, WPN-21) | время полёта, порядок выбора целей |
-| Mines | 5 штук, кладутся на месте корабля, от «взгляда назад» не зависят, подрыв одинаков на игроке и ботах (WPN-6) | время жизни, радиус подрыва |
-| Quake | волна идёт по геометрии трассы, вперёд/назад, деформирует меш, искры по краям (WPN-13) | прохождение трамплинов, скорость волны, урон по расстоянию |
-| Power Swarm | рой 1–5 дронов к противнику, постепенно снижает щит (WPN-6) | скорость снижения, время жизни дронов, что если целей несколько |
-| Gravity Bomb, AG Stinger | полностью | — |
-| Plasma Bolt | один заряд при подборе; зарядка 1–2 с; пучок без наведения и без сплэша, идёт по геометрии трассы, смертелен при попадании (WPN-11, WPN-21) | точная зарядка, дальность, выстрел назад |
-| Penetrator | ускорение и таран на носу (WPN-18) | урон тарана, воздействие на противников |
-| Proton Cannon | 25 зарядов, быстрая очередь, вперёд, по геометрии трассы, без наведения; урон небольшой, сильно сбивает стабильность (WPN-22) | темп, дальность, урон за выстрел |
-| Orbital Laser, Seismic Field | урон, эффект | геометрия поражения |
-| Grenades | 3 штуки веером, вперёд/назад по «взгляду назад»; летят по свободной траектории, могут вылететь за пределы трассы и там взрываются или исчезают (WPN-6, WPN-21) | геометрия веера, радиус взрыва |
-| Flamer | огнемёт: малая дальность, низкий урон, свободная траектория струи, эффект «в огне» без урона по времени (WPN-20, WPN-21) | дальность, расход топлива, выстрел назад |
-| Shield | непроницаемый щит на определённое время: поглощает любой входящий урон, при поглощении перекрашивается с синего в красный (WPN-23) | длительность, сколько урона выдерживает |
-| Shield Drain, Bio Snare, Shield Raider, Turbo Enforcer, Stealth, Global Drain, Control Jammer | только название (и запас) | поведение — тесты на изменённой игре (TC) и наблюдение в игре, урон — из данных игры (WPN-15, FMT-5); наблюдения игрока пока нет |
+| Turbo | a boost | boost strength |
+| Autopilot | AI drives | duration |
+| Rocket | 3 pieces in a row, forward/backward, unguided, follow the track geometry (WPN-6, WPN-21) | range and flight time |
+| Missile | homing with limited lock range, follows the track geometry (WPN-6, WPN-21) | flight time, conditions for losing the lock |
+| Super Missiles | up to 3 targets; with one target all three go for it; follow the track geometry (WPN-6, WPN-21) | flight time, order of target selection |
+| Mines | 5 pieces, laid at the ship's position, do not depend on "look back", detonation is the same on the player and bots (WPN-6) | lifetime, detonation radius |
+| Quake | the wave follows the track geometry, forward/backward, deforms the mesh, sparks at the edges (WPN-13) | passing over jumps, wave speed, damage by distance |
+| Power Swarm | a swarm of 1–5 drones to the opponent, gradually reduces the shield (WPN-6) | rate of reduction, drone lifetime, what happens with several targets |
+| Gravity Bomb, AG Stinger | fully | — |
+| Plasma Bolt | one charge on pickup; charge-up 1–2 s; unguided beam without splash, follows the track geometry, lethal on hit (WPN-11, WPN-21) | exact charge-up, range, firing backward |
+| Penetrator | acceleration and a ram on the nose (WPN-18) | ram damage, effect on opponents |
+| Proton Cannon | 25 charges, rapid burst, forward, along the track geometry, unguided; low damage, strongly upsets stability (WPN-22) | rate, range, damage per shot |
+| Orbital Laser, Seismic Field | damage, effect | hit geometry |
+| Grenades | 3 pieces in a fan, forward/backward by "look back"; fly on a free trajectory, can fly outside the track and explode or disappear there (WPN-6, WPN-21) | fan geometry, explosion radius |
+| Flamer | flamethrower: short range, low damage, free trajectory of the jet, "on fire" effect without damage over time (WPN-20, WPN-21) | range, fuel consumption, firing backward |
+| Shield | an impenetrable shield for a certain time: absorbs any incoming damage, changes colour from blue to red when absorbing (WPN-23) | duration, how much damage it withstands |
+| Shield Drain, Bio Snare, Shield Raider, Turbo Enforcer, Stealth, Global Drain, Control Jammer | only the name (and the stock) | behaviour — tests on the modified game (TC) and observation in the game, damage — from the game data (WPN-15, FMT-5); no player observation yet |
 
-Оставшиеся виды закрываются так: поведение — тестами на изменённой игре (TC) и наблюдением в игре, числовые параметры (урон,
-скорость, толчок) — из данных игры (`WEAPONSTATS.INI`, FMT-5): попадания на глаз чисел не дают.
+The remaining types are covered as follows: behaviour — by tests on the modified game (TC) and observation in the game, numeric parameters (damage,
+speed, knockback) — from the game data (`WEAPONSTATS.INI`, FMT-5): hits by eye do not give numbers.
 
-## WPN-17. Урон по человеку и действующий щит [код]
-- Урон от прямого попадания оружия по кораблю **человека** уменьшается вдвое (WPN-9 × 0.5). Взрывы и толчки
-  (например, Gravity Bomb) — без уменьшения.
-- Пока у корабля действует подобранный щит (Shield, WPN-23), любой входящий урон поглощается: щит корабля не
-  убывает, а сам щит-предмет при поглощении меняет цвет с синего на красный [✓ наблюдение игрока].
-
+## WPN-17. Damage to a human and an active shield [code]
+- Damage from a direct weapon hit on a **human's** ship is halved (WPN-9 × 0.5). Explosions and knockbacks
+  (for example, Gravity Bomb) are not reduced.
+- While the ship has a picked-up shield active (Shield, WPN-23), any incoming damage is absorbed: the ship's shield does not
+  decrease, and the shield item itself changes colour from blue to red while absorbing [✓ player observation].

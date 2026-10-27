@@ -39,3 +39,4 @@ ReFusion            # this project's own name
 
 # Data values in the game files (FMT-18)
 0x12345678          # placeholder value in ship mesh packets
+decompiled  # used in the rule "no decompiled code here"

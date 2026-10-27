@@ -1,369 +1,369 @@
-# 07. Форматы данных
+# 07. Data formats
 
-## FMT-1. Общее
-Все числа little-endian; `f32` — IEEE float; `vec4` — 4 × f32. Пути внутри данных нечувствительны к регистру,
-разделитель — обратная косая черта `\` [код]; реализация может хранить данные как обычное дерево `DATA/…`.
+## FMT-1. General
+All numbers are little-endian; `f32` is an IEEE float; `vec4` is 4 × f32. Paths inside the data are case-insensitive,
+the separator is a backslash `\` [code]; an implementation may store the data as an ordinary `DATA/…` tree.
 
-## FMT-2. Каталог трассы `DATA/TRACKS/<NAME>/` [✓]
-| файл | содержимое |
+## FMT-2. Track directory `DATA/TRACKS/<NAME>/` [✓]
+| file | contents |
 |---|---|
-| `<NAME><n><F/R>.TRK` | геометрия: вершины, полигоны с материалами, секции и подсекции, связи секций, свет, видимость (FMT-3) |
-| `<NAME><n><F/R>.TRI` | расставленные объекты, сплайны, короткие пути, звуки (FMT-25) |
-| `<NAME>C<n><F/R>.TRI` | малый файл того же формата: только сплайны («Course1forward» и др.), без объектов и имён (FMT-25) |
-| `<NAME><n><F/R>.SPL` | именованные линии ИИ, пит-лейна и **стартовой решётки** (FMT-24) |
-| `<NAME>_C<n><F/R>.LAP` | доля круга для каждой подсекции (FMT-4) |
-| `DESC.TXT` | 3 пары чисел (по раскладкам 1–3), затем название и описание трассы на 5 языках |
-| `VFX_SCRIPT.SPT` | текстовые блоки `[Smoke]` `(имя)` с параметрами частиц (мощность, время, размеры, цвета, ускорение) |
-| `CLOUDS.CFI`, `SKY_1…3/` (`SKY.MEM`, `TEXTURES/`) | облака и небо (по раскладкам) |
-| `ANIM_*.MEM`, `SPEEDUP_WIDER.MEM`, `WEAPON_GRIDWIDER.MEM` | модели объектов, на которые ссылается `.TRI` по имени (FMT-25) |
-| `TEXTURES/` | текстуры модели трассы (FMT-20) |
-| `*.IPF`, `PHOTO.MUN` | видео (`SHORT/MEDIUM/LONG.IPF`) и картинка трассы |
+| `<NAME><n><F/R>.TRK` | geometry: vertices, polygons with materials, sections and subsections, section links, lighting, visibility (FMT-3) |
+| `<NAME><n><F/R>.TRI` | placed objects, splines, short paths, sounds (FMT-25) |
+| `<NAME>C<n><F/R>.TRI` | small file of the same format: splines only ("Course1forward" etc.), no objects and no names (FMT-25) |
+| `<NAME><n><F/R>.SPL` | named AI lines, pit lane and the **starting grid** (FMT-24) |
+| `<NAME>_C<n><F/R>.LAP` | lap progress for each subsection (FMT-4) |
+| `DESC.TXT` | 3 pairs of numbers (for layouts 1–3), then the track name and description in 5 languages |
+| `VFX_SCRIPT.SPT` | text blocks `[Smoke]` `(name)` with particle parameters (power, time, sizes, colours, acceleration) |
+| `CLOUDS.CFI`, `SKY_1…3/` (`SKY.MEM`, `TEXTURES/`) | clouds and sky (per layout) |
+| `ANIM_*.MEM`, `SPEEDUP_WIDER.MEM`, `WEAPON_GRIDWIDER.MEM` | models of objects that the `.TRI` refers to by name (FMT-25) |
+| `TEXTURES/` | textures of the track model (FMT-20) |
+| `*.IPF`, `PHOTO.MUN` | video (`SHORT/MEDIUM/LONG.IPF`) and the track picture |
 
-У devilia есть только раскладки F.
+devilia has only the F layouts.
 
-## FMT-3. .TRK [✓ разобраны все 45 файлов до последнего байта]
-Заголовок: `'VERS'`, `i32 версия` (5), затем i32: число секций (S), полигонов (P), вершин (V), нормалей SNRM (N),
-`?` (Y), имён материалов (M), источников света (L), `?`. Далее блоки, каждый начинается 4-символьным тегом:
+## FMT-3. .TRK [✓ all 45 files parsed to the last byte]
+Header: `'VERS'`, `i32 version` (5), then i32: number of sections (S), polygons (P), vertices (V), SNRM normals (N),
+`?` (Y), material names (M), light sources (L), `?`. Then blocks, each starting with a 4-character tag:
 
-| тег | содержимое |
+| tag | contents |
 |---|---|
-| `VERT` | V × vec4 — позиции |
-| `VNRM` | V × 16 байт — нормали вершин (в версиях < 5 в `.w` цвет); **у стен по ним игра отталкивает корабль** (PHY-25) — нормали вершин стены смотрят из стены |
-| `SNRM` | N × 16 байт |
-| (версия < 5) | V × u16 — цвет 15 бит |
-| `POLY` | P × { u32 v0, v1, v2, u32 индекс нормали, **u32 индекс материала** } |
-| `TOTS` | i32 подсекций, ссылок на полигоны, **ссылок на свет, связей** (размеры общих пулов; порядок проверен на всех 45 файлах) |
-| `SECT` | на секцию: u32 flags (bit0 → следом 12 байт: **точка возврата на трассу** после падения, PHY-22 (раньше ошибочно считалась смещением пит-лейна)), u32 ?, 0x28 байт (версия > 3), i32 число подсекций, vec4 min, vec4 max (габариты), 0x14 байт центр+радиус, **8 × vec4 — «ворота» входа и выхода** (по 4 точки: низ/верх × лево/право), vec4 «вверх», 0x30 байт, i32 число связей, i32 число источников света |
-| `SUBS` | на подсекцию: i32 число полигонов (K), vec4 min, vec4 max |
-| `POLI` | на подсекцию: K × u16 — индексы полигонов |
-| `CONN` | на секцию: (число связей) × i32 — соседние секции (бывают развилки) |
-| `LITI` | на секцию: индексы источников света |
-| `SURF` | M × { u8 len, char[len] } — **имена материалов** (тип покрытия — PHY-17) |
-| `LIGH` | L × { u32, позиция vec4, цвет vec4, направление vec4, параметры } |
-| `VISI` | u32 n, затем S строк по n байт: для каждой секции — **битовая маска ячеек модели трассы** (FMT-26), младший бит первым; n = ⌈ячеек/128⌉·16 [✓ все 45] |
+| `VERT` | V × vec4 — positions |
+| `VNRM` | V × 16 bytes — vertex normals (in versions < 5 the colour is in `.w`); **the game pushes a ship away from walls using them** (PHY-25) — the vertex normals of a wall point out of the wall |
+| `SNRM` | N × 16 bytes |
+| (version < 5) | V × u16 — 15-bit colour |
+| `POLY` | P × { u32 v0, v1, v2, u32 normal index, **u32 material index** } |
+| `TOTS` | i32 subsections, polygon references, **light references, links** (sizes of the shared pools; order verified on all 45 files) |
+| `SECT` | per section: u32 flags (bit0 → followed by 12 bytes: the **track re-entry point** after a fall, PHY-22 (previously mistaken for a pit lane offset)), u32 ?, 0x28 bytes (version > 3), i32 number of subsections, vec4 min, vec4 max (extents), 0x14 bytes centre+radius, **8 × vec4 — entry and exit "gates"** (4 points each: bottom/top × left/right), vec4 "up", 0x30 bytes, i32 number of links, i32 number of light sources |
+| `SUBS` | per subsection: i32 number of polygons (K), vec4 min, vec4 max |
+| `POLI` | per subsection: K × u16 — polygon indices |
+| `CONN` | per section: (number of links) × i32 — neighbouring sections (forks exist) |
+| `LITI` | per section: light source indices |
+| `SURF` | M × { u8 len, char[len] } — **material names** (surface type — PHY-17) |
+| `LIGH` | L × { u32, position vec4, colour vec4, direction vec4, parameters } |
+| `VISI` | u32 n, then S rows of n bytes each: for each section — a **bit mask of track model cells** (FMT-26), least significant bit first; n = ⌈cells/128⌉·16 [✓ all 45] |
 
-Направление «вперёд» секции = `ворота[2] − ворота[0]` (PHY-15). [код]
-Значение неизвестных полей (`?`, Y, байтовые блоки) — OQ-32.
+The "forward" direction of a section = `gate[2] − gate[0]` (PHY-15). [code]
+The meaning of the unknown fields (`?`, Y, byte blocks) — OQ-32.
 
-Стены в данных оригинала [✓ все 45 файлов]: полосы треугольников с материалом `wall`
-и **своими вершинами** (стен, имеющих общее ребро с полом, — 0); нормали вершин стены совпадают с нормалью грани
-(медиана 1.0; нулевых и «чужих» — до ~6 % на углах и стыках); под наклонной стеной продолжается пол (~93–99 % точек).
-Пример прямой Florion Height 1F: откос высотой ~9.7 с выносом наружу ~6.9 от края полотна, пол — ещё ~4 за верхом.
+Walls in the original data [✓ all 45 files]: triangle strips with material `wall`
+and **their own vertices** (walls sharing an edge with the floor — 0); the wall vertex normals coincide with the face normal
+(median 1.0; zero and "foreign" ones — up to ~6 % at corners and joints); under a sloped wall the floor continues (~93–99 % of points).
+Example, a straight of Florion Height 1F: a slope ~9.7 high extending outward ~6.9 from the edge of the road surface, the floor continues ~4 further past the top.
 
-## FMT-4. .LAP [✓ все 45 файлов]
-`f32 2.0`, `f32 контрольное число` (= размер соответствующего `C*.TRI` в байтах), затем на каждую подсекцию трассы
-(в порядке секций и подсекций) `{ f32 доля_круга 0…1, u32 0 }`. Число записей = числу подсекций в TRK.
-Доля круга растёт линейно с расстоянием по оси трассы; **ноль — в 13–17 ед. до дальнего края полосы покрытия `start`**
-(полоса ~65 вдоль) [✓ Florion 1F, 1R: отклонение от прямой ≤ 0.0012 круга].
+## FMT-4. .LAP [✓ all 45 files]
+`f32 2.0`, `f32 check number` (= size in bytes of the corresponding `C*.TRI`), then for each subsection of the track
+(in section and subsection order) `{ f32 lap_progress 0…1, u32 0 }`. The number of entries = the number of subsections in the TRK.
+Lap progress grows linearly with distance along the track axis; **zero is 13–17 units before the far edge of the `start` surface strip**
+(strip ~65 long) [✓ Florion 1F, 1R: deviation from a straight line ≤ 0.0012 lap].
 
 ## FMT-5. SHIPS.INI, WEAPONSTATS.INI [✓]
-Текст `ключ значение`; в `SHIPS.INI` — секции `[<команда> lead|second]`, `[zone ship]`, `[escape pod]`.
-Смысл ключей — SHIP-3 и WPN-15. `cost_*` — целые, остальное — числа с плавающей точкой.
+Text `key value`; in `SHIPS.INI` — sections `[<team> lead|second]`, `[zone ship]`, `[escape pod]`.
+The meaning of the keys — SHIP-3 and WPN-15. `cost_*` are integers, the rest are floating-point numbers.
 
-## FMT-6. PILOTS/SETUPS/<имя>.INI [✓ все 16 пилотов]
-Строки вида `@studynam::<ключ> <значение>`. **Читаются по порядку строк, имена ключей игнорируются.** Порядок:
+## FMT-6. PILOTS/SETUPS/<name>.INI [✓ all 16 pilots]
+Lines of the form `@studynam::<key> <value>`. **They are read in line order, key names are ignored.** Order:
 smoothness, alertness, skillLevel (1–3), gridRating, agression, agressionCalming, flapability, basicSpeed, stall,
-flags (1/2), concentration, givenGrudge (−1 или номер пилота), lookAheadFactor, minTurn, airbrakeTurn, brakeTurn,
+flags (1/2), concentration, givenGrudge (−1 or a pilot number), lookAheadFactor, minTurn, airbrakeTurn, brakeTurn,
 steeringFactor, slowDown, sharpBend, err_mult.
 
-## FMT-7. GAME.BNI (66 320 байт) [✓]
-`"BNIF"`, `u32 0`, далее три блока подряд (хвост ~16 КБ не используется):
+## FMT-7. GAME.BNI (66 320 bytes) [✓]
+`"BNIF"`, `u32 0`, then three blocks in a row (the ~16 KB tail is unused):
 
-| размер | блок |
+| size | block |
 |---|---|
-| 0xFD8 | **начальный прогресс** (FMT-10) |
-| 0xAF00 | **200 событий** × 0xE0 (FMT-8) |
-| 0x5B0 | **16 лиг** × 0x5B (FMT-9) |
+| 0xFD8 | **initial progress** (FMT-10) |
+| 0xAF00 | **200 events** × 0xE0 (FMT-8) |
+| 0x5B0 | **16 leagues** × 0x5B (FMT-9) |
 
-## FMT-8. Событие (0xE0)
-| смещение | поле |
+## FMT-8. Event (0xE0)
+| offset | field |
 |---|---|
-| +0x00 | тип челленджа (RACE-14): 0 место, 1 время круга, 2 Elimination, 3 дуэль, 4 выживание, 5 особый [✓ 0–3] |
-| +0x04 | код трассы `env·6 + circuit` [✓] |
-| +0x08 | число кругов [✓] |
-| +0x0C…+0x48 | расстановка 16 пилотов (OQ-33) |
-| +0x4C / +0x50 / +0x54 | пороги **бронза / серебро / золото** (места, секунды, число убийств) [✓] |
-| +0x5C | число кораблей |
-| +0x60 | i32: оружейные площадки включены (FLOW-3) [✓ шесть челленджей Feisar] |
-| +0x68 | i8: класс скорости − 1 для челленджа; −1 — не задан (SHIP-14) [✓] |
-| +0x69 | i8: минимальный уровень апгрейдов c (SHIP-16): в челлендже — уровни игрока, в лиге — опорный уровень соперников [код; значения 0…6] |
-| +0x6A | i8: щит игрока в челлендже, % от обычного [код; дуэль: 15 → щит 9] |
-| +0x6C | i32: пит-лейн включён (PHY-24) [✓ запись гонки: выключен в челлендже Elimination] |
-| +0x78 | маска разрешённого оружия: бит = номер оружия (WPN-1); bit31 — «по умолчанию» |
-| +0xB4 | f32: не 0 — подтягивать апгрейды соперников (SHIP-16) [код; 1.0 в 140 событиях из 200] |
+| +0x00 | challenge type (RACE-14): 0 position, 1 lap time, 2 Elimination, 3 duel, 4 survival, 5 special [✓ 0–3] |
+| +0x04 | track code `env·6 + circuit` [✓] |
+| +0x08 | number of laps [✓] |
+| +0x0C…+0x48 | arrangement of 16 pilots (OQ-33) |
+| +0x4C / +0x50 / +0x54 | **bronze / silver / gold** thresholds (positions, seconds, number of kills) [✓] |
+| +0x5C | number of ships |
+| +0x60 | i32: weapon pads enabled (FLOW-3) [✓ six Feisar challenges] |
+| +0x68 | i8: speed class − 1 for the challenge; −1 — not set (SHIP-14) [✓] |
+| +0x69 | i8: minimum upgrade level c (SHIP-16): in a challenge — the player's levels, in a league — the reference level of the opponents [code; values 0…6] |
+| +0x6A | i8: player's shield in a challenge, % of normal [code; duel: 15 → shield 9] |
+| +0x6C | i32: pit lane enabled (PHY-24) [✓ race recording: disabled in the Elimination challenge] |
+| +0x78 | mask of allowed weapons: bit = weapon number (WPN-1); bit31 — "default" |
+| +0xB4 | f32: non-0 — boost the opponents' upgrades (SHIP-16) [code; 1.0 in 140 of the 200 events] |
 
-Номер события по режиму — FLOW-2.
+Event number by mode — FLOW-2.
 
-## FMT-9. Лига (0x5B) [✓]
-`[0..7]` номера событий (0xFF — конец), `[8]` лига, открываемая победой, `[9]` номер дополнительного бонуса (0xFF — нет),
-`[10]` ?, `[11..]` имя, ASCII с нулём.
+## FMT-9. League (0x5B) [✓]
+`[0..7]` event numbers (0xFF — end), `[8]` the league unlocked by a win, `[9]` number of the additional bonus (0xFF — none),
+`[10]` ?, `[11..]` name, ASCII with a terminating zero.
 
-## FMT-10. Прогресс (0xFD8) — то же в профиле сохранения
-| смещение | поле |
+## FMT-10. Progress (0xFD8) — the same in the save profile
+| offset | field |
 |---|---|
-| +0x000 | u64 маска открытых трасс (бит = код трассы) |
-| +0x010 | u32 маска открытого оружия (бит = номер оружия, WPN-1) |
-| +0x014 | u32 маска открытых лиг |
-| +0x01C | u32 маска бонусов лиг |
-| +0x020 | веса оружия, 27 значений (WPN-5); тип значения — OQ-34 |
-| +0x08C | u32 — вероятно, кредиты на апгрейды (OQ-13) |
-| +0x090 | 16 слотов × 6 × i32: **купленные уровни апгрейдов** (−1 — нет) в порядке TOPSPEED, THRUST, BRAKING, STABILITY, WEAPON, SHIELD (SHIP-5, SHIP-14) [✓] |
-| +0xEF8 / +0xF00 / +0xF08 | u64 Arcade: 1-е / 2-е / 3-е место (бит = код трассы) [✓] |
-| +0xF10 / +0xF18 / +0xF20 | u64 Time Trial: золото / серебро / бронза |
-| +0xF28 / +0xF30 / +0xF38 | u64 челленджи: золото / серебро / бронза (бит `команда·6 + номер`) [✓] |
-| +0xF40 | u32 пройденные лиги (бит = лига) [✓] |
-| +0xF44, +0xF48 | доп. отметки для процента прохождения (RACE-17) |
-| +0xF58, +0xF60, +0xF68, +0xF6C | открытые бонусы/функции (OQ-34) |
+| +0x000 | u64 mask of unlocked tracks (bit = track code) |
+| +0x010 | u32 mask of unlocked weapons (bit = weapon number, WPN-1) |
+| +0x014 | u32 mask of unlocked leagues |
+| +0x01C | u32 mask of league bonuses |
+| +0x020 | weapon weights, 27 values (WPN-5); value type — OQ-34 |
+| +0x08C | u32 — probably upgrade credits (OQ-13) |
+| +0x090 | 16 slots × 6 × i32: **purchased upgrade levels** (−1 — none) in the order TOPSPEED, THRUST, BRAKING, STABILITY, WEAPON, SHIELD (SHIP-5, SHIP-14) [✓] |
+| +0xEF8 / +0xF00 / +0xF08 | u64 Arcade: 1st / 2nd / 3rd place (bit = track code) [✓] |
+| +0xF10 / +0xF18 / +0xF20 | u64 Time Trial: gold / silver / bronze |
+| +0xF28 / +0xF30 / +0xF38 | u64 challenges: gold / silver / bronze (bit `team·6 + number`) [✓] |
+| +0xF40 | u32 completed leagues (bit = league) [✓] |
+| +0xF44, +0xF48 | extra marks for the completion percentage (RACE-17) |
+| +0xF58, +0xF60, +0xF68, +0xF6C | unlocked bonuses/features (OQ-34) |
 
-## FMT-11. Сохранение (карта памяти PS2) [✓]
-Папка `BESCES-50005`: значки (`icon.sys`, `*.icn`), основной файл `BESCES-50005` (21 968 байт) и профили
-`BESCES-50005-00…04` (по 4258 байт).
-- **Профиль**: заголовок 0x22 байта (`u32 3`, имя файла ASCII с нулями), далее блок прогресса (FMT-10).
-- **Основной файл** начинается с **каталога профилей**, записи по 0x48 байт:
-  `+0x00` имя (ASCII), `+0x1F` время сохранения UTC в BCD (сек, мин, час, —, день, месяц, год),
-  `+0x2C…+0x39` сводка для экрана выбора (байты): 1-х / 2-х / 3-х мест в Arcade, побед в лигах, медалей
-  челленджей (з/с/б), медалей Time Trial (з/с/б), доп. отметки, ?, рейтинг (?), доля лиг для процента (`Lp`, RACE-17);
-  `+0x40` u32 — вероятно, время в игре, мс. Остальная часть файла — OQ-34.
-- Контрольной суммы не найдено.
-Поддержка чтения сохранений оригинала необязательна; реализация может хранить прогресс в своём формате.
+## FMT-11. Save (PS2 memory card) [✓]
+Folder `BESCES-50005`: icons (`icon.sys`, `*.icn`), the main file `BESCES-50005` (21 968 bytes) and the profiles
+`BESCES-50005-00…04` (4258 bytes each).
+- **Profile**: a 0x22-byte header (`u32 3`, file name in ASCII with zeros), then the progress block (FMT-10).
+- The **main file** starts with a **profile directory**, entries of 0x48 bytes:
+  `+0x00` name (ASCII), `+0x1F` save time UTC in BCD (sec, min, hour, —, day, month, year),
+  `+0x2C…+0x39` summary for the selection screen (bytes): Arcade 1st / 2nd / 3rd places, league wins, challenge
+  medals (g/s/b), Time Trial medals (g/s/b), extra marks, ?, rating (?), share of leagues for the percentage (`Lp`, RACE-17);
+  `+0x40` u32 — probably play time, ms. The rest of the file — OQ-34.
+- No checksum was found.
+Reading the original's saves is optional; an implementation may store progress in its own format.
 
-## FMT-12. Тексты `TEXT/TEXT0..4.DAT`
-Языки: таблица u32-смещений, затем строки. Номера строк, нужные правилам: 0x26F «new lap record», 0x270 «final lap»,
-0x271 «perfect lap», 0x366 — надпись о выбывании, 0x368–0x36D — медали. Строка по номеру = начало таблицы +
-смещение; номер больше 65536 — пустая строка, других проверок нет. Подписи строк меню хранятся как 16-битные
-номера (берутся при отрисовке), значения переключателей — 32-битные. [код; ✓ изменённая игра, PAL]
+## FMT-12. Texts `TEXT/TEXT0..4.DAT`
+Languages: a table of u32 offsets, then strings. String numbers needed by the rules: 0x26F "new lap record", 0x270 "final lap",
+0x271 "perfect lap", 0x366 — the elimination caption, 0x368–0x36D — medals. A string by number = table start +
+offset; a number above 65536 gives an empty string, there are no other checks. Menu string labels are stored as 16-bit
+numbers (looked up at draw time), switch values — as 32-bit. [code; ✓ modified game, PAL]
 
-## FMT-13. .MEM [✓ все 78 файлов моделей]
-Образы структур: `u32 1, u32 nReloc, u32 0, u32 0`, затем nReloc записей, затем данные.
-- Запись без битов 31/30 — смещение 32-битного **указателя**; сам указатель хранит смещение от начала файла
-  (после загрузки к нему прибавляется адрес загрузки). Только по таблице можно отличить указатель от данных.
-- Запись с битом 31 или 30 указывает (младшие 30 бит — смещение) на поле с описанием текстуры, которое
-  поправляется при загрузке; это не указатель.
-Внутри — модели (FMT-17…FMT-20), шрифты, анимации. Для своей реализации их нужно **преобразовать** в свой
-формат; игровая логика от них не зависит.
+## FMT-13. .MEM [✓ all 78 model files]
+Images of structures: `u32 1, u32 nReloc, u32 0, u32 0`, then nReloc records, then data.
+- A record without bits 31/30 is the offset of a 32-bit **pointer**; the pointer itself holds an offset from the start of the file
+  (the load address is added to it after loading). Only the table tells a pointer from data.
+- A record with bit 31 or 30 points (the low 30 bits are the offset) to a texture description field that
+  is patched at load time; it is not a pointer.
+Inside — models (FMT-17…FMT-20), fonts, animations. For your own implementation they have to be **converted** to your own
+format; game logic does not depend on them.
 
-## FMT-14. FRONTEND/PDSA_DATA [✓ изменённая игра, PAL]
-Автомат экранов меню: `u32 0x2BF1`, `u32 число_состояний (160)`, на состояние
-`{u32 первый_переход, u32 число_переходов, u32 экран}`, затем переходы `{u32 событие, u32 вид, u32 состояние}`.
-- **Событие** хранится со сдвигом: при чтении к нему прибавляется 0x3A. События: 0x3A «принять» (✕),
-  0x3B «назад» (△), 0x3C, 0x3D, … — пункты меню по порядку, 0x45 — дополнительная кнопка (например, сведения
-  о корабле), 0x46 / 0x47 — «да» / «нет» в диалогах.
-- **Вид**: 1 — открыть поверх текущего (с возвратом), 2 — перейти, 3 — вернуться к предыдущему.
-- **Экран**: в файле — служебное число; игра при запуске сама ставит сюда, какой экран показывать в этом
-  состоянии (несколько состояний могут показывать один экран).
-- Экран посылает событие, автомат ищет переход с этим событием в текущем состоянии; если перехода нет, событие
-  ничего не делает.
-- Некоторые состояния: 7 — главное меню, 8 → 22 → 23 → 25 → 26 — Arcade (выбор корабля 22, трасса 23),
-  26 — гонка, 13 — режим на двоих, 56 — его настройки, 57 — настройки гонки на двоих. Состояния 50, 53, 36,
-  107 и др. не достижимы ни из одного перехода. [✓ изменённая игра, PAL: номер текущего состояния 7, 26]
+## FMT-14. FRONTEND/PDSA_DATA [✓ modified game, PAL]
+The menu screen state machine: `u32 0x2BF1`, `u32 number_of_states (160)`, per state
+`{u32 first_transition, u32 number_of_transitions, u32 screen}`, then transitions `{u32 event, u32 kind, u32 state}`.
+- The **event** is stored with an offset: 0x3A is added to it when read. Events: 0x3A "accept" (✕),
+  0x3B "back" (△), 0x3C, 0x3D, … — menu items in order, 0x45 — an additional button (for example, ship
+  details), 0x46 / 0x47 — "yes" / "no" in dialogs.
+- **Kind**: 1 — open on top of the current one (with return), 2 — go to, 3 — return to the previous one.
+- **Screen**: in the file it is a placeholder number; at startup the game itself puts here which screen to show in this
+  state (several states may show the same screen).
+- A screen sends an event, the state machine looks for a transition with this event in the current state; if there is no transition, the event
+  does nothing.
+- Some states: 7 — main menu, 8 → 22 → 23 → 25 → 26 — Arcade (ship selection 22, track 23),
+  26 — race, 13 — two-player mode, 56 — its settings, 57 — two-player race settings. States 50, 53, 36,
+  107 and others are not reachable from any transition. [✓ modified game, PAL: current state number 7, 26]
 
 ## FMT-15. FE_POSITION.TXT
-`ИМЯ значение [rem комментарий]`: координаты, цвета, размеры элементов меню.
+`NAME value [rem comment]`: coordinates, colours, sizes of menu elements.
 
-## FMT-16. Прочие файлы
-`.TRF` — меши (чанки `TRFF`, LOD), `.CLT` — текстуры, `.GEO` — точки (пилоны оружия, эффекты), `.HUD` — раскладки
-HUD, `.IPS/.IPF` — MPEG-2 видео и анимированные билборды, `.INA` — конфиг звука, `.VAG/.WAV` — звук.
-Подробные форматы не нужны для логики (OQ-35).
+## FMT-16. Other files
+`.TRF` — meshes (`TRFF` chunks, LOD), `.CLT` — textures, `.GEO` — points (weapon pylons, effects), `.HUD` — HUD
+layouts, `.IPS/.IPF` — MPEG-2 video and animated billboards, `.INA` — sound config, `.VAG/.WAV` — sound.
+Detailed formats are not needed for the logic (OQ-35).
 
-## FMT-17. Модель в .MEM: дерево узлов [✓ все 33 корабля и 45 трасс]
-Смещения — от начала данных (после таблицы указателей):
-- `+0x000` u32 размер, затем имя исходного файла (256 байт);
-- `+0x104` u32 число объектов верхнего уровня; `+0x118` указатель на массив указателей на их узлы.
+## FMT-17. Model in .MEM: node tree [✓ all 33 ships and 45 tracks]
+Offsets are from the start of the data (after the pointer table):
+- `+0x000` u32 size, then the source file name (256 bytes);
+- `+0x104` u32 number of top-level objects; `+0x118` pointer to an array of pointers to their nodes.
 
-Узел (0x140 байт):
+Node (0x140 bytes):
 
-| смещение | поле |
+| offset | field |
 |---|---|
-| +0x00 | матрица 4×4 f32: строки — оси, последняя строка — перенос; точка преобразуется как вектор-строка `[x y z 1] · M` |
-| +0x40 | ограничивающая сфера (центр, радиус) |
-| +0x58 | указатель на меш (FMT-18) или 0 |
-| +0x60 / +0x64 | число дочерних узлов / указатель на массив указателей на них |
-| +0x68 | имя, ASCII с нулём (до 0x28 байт): у объектов верхнего уровня `LOD0…` / `TRACK`, у деталей кораблей — см. FMT-22; бессодержательные имена — `AA_`, `AAA_` |
-| +0x90 | ограничивающий параллелепипед, 8 углов × vec4 |
-| +0x110 | дорожка ключевых кадров (FMT-23) |
+| +0x00 | 4×4 f32 matrix: rows are axes, the last row is the translation; a point is transformed as a row vector `[x y z 1] · M` |
+| +0x40 | bounding sphere (centre, radius) |
+| +0x58 | pointer to a mesh (FMT-18) or 0 |
+| +0x60 / +0x64 | number of child nodes / pointer to an array of pointers to them |
+| +0x68 | name, ASCII with a terminating zero (up to 0x28 bytes): for top-level objects `LOD0…` / `TRACK`, for ship parts see FMT-22; meaningless names — `AA_`, `AAA_` |
+| +0x90 | bounding box, 8 corners × vec4 |
+| +0x110 | keyframe track (FMT-23) |
 
-Мировое положение детали = произведение матриц от неё до корня. Изредка матрица содержит отражение или перекос.
+The world position of a part = the product of the matrices from it up to the root. Occasionally a matrix contains a reflection or a shear.
 
-**Корабль** (`SHIPS/<команда>/<корабль>/SHIPMESH.MEM`, у секретного — `SHIPS/SECRET/`): обычно 3 объекта верхнего
-уровня — полная модель, упрощённая и плоская тень. После матриц: **Y — вверх, нос — в +Z** (двигатели на −Z),
-длина ~12.5 единиц. [✓ рендер всех 33 кораблей]
-**Версии кораблей:** у каждой команды 4 папки: `VECTOR`, `VENOM`, `RAPIER` — три ступени одного дизайна в цветах
-команды (разные модели и свои наборы текстур, частично общие), `PROTO` — отдельный корабль-прототип со своей
-раскраской; плюс один корабль `SHIPS/SECRET/`. Какая версия когда используется (уровень апгрейдов? класс
-скорости? открытие прототипов?) — OQ-44. [✓ состав; выбор — ?]
-**Трасса** (`TRACKS/<ТРАССА>/<ТРАССА><n><F/R>.MEM`): один объект `TRACK` с единичной матрицей и одним мешем;
-координаты совпадают с `.TRK` (FMT-3) точно. [✓]
+**Ship** (`SHIPS/<team>/<ship>/SHIPMESH.MEM`, for the secret one — `SHIPS/SECRET/`): usually 3 top-level
+objects — the full model, a simplified one and a flat shadow. After applying the matrices: **Y is up, the nose is toward +Z** (engines at −Z),
+length ~12.5 units. [✓ render of all 33 ships]
+**Ship versions:** each team has 4 folders: `VECTOR`, `VENOM`, `RAPIER` — three tiers of one design in the team's colours
+(different models and their own texture sets, partly shared), `PROTO` — a separate prototype ship with its own
+livery; plus one ship in `SHIPS/SECRET/`. Which version is used when (upgrade level? speed
+class? prototype unlocks?) — OQ-44. [✓ composition; selection — ?]
+**Track** (`TRACKS/<TRACK>/<TRACK><n><F/R>.MEM`): one `TRACK` object with an identity matrix and one mesh;
+the coordinates match the `.TRK` (FMT-3) exactly. [✓]
 
-## FMT-18. Меш и пакеты вершин [✓]
-Меш: `+0x00` u32 число текстур, `+0x04` указатель на список указателей на записи текстур (FMT-19),
-`+0xA0` указатель на цепочку пакетов. Цепочка — подряд идущие пакеты: 16-байтный заголовок (младшие 16 бит —
-длина данных в 16-байтных словах, биты 28–30 = 6 «возврат»), затем данные. Конец цепочки — первый заголовок с другим
-значением битов 28–30. Внутри — поток графических команд, упакованных для видеочипа консоли (общедоступная
-документация платформы); для разбора нужно следующее:
-- **Команда настройки текстуры** — список пар «номер параметра + 64-битное значение». У кораблей значение параметра
-  текстуры заменено заглушкой: в старших 4 байтах стоит маркер `0x12345678`, в младших 4 — **индекс текстуры в списке
-  меша**. У трасс записано настоящее описание текстуры (FMT-20). Настройка действует на все следующие порции, в том
-  числе в следующих пакетах.
-- **Порция вершин** начинается с команды загрузки одного 16-байтного слова в ячейку 0 (это заголовок примитива:
-  младшие 15 бит — число вершин N; тип примитива — в битах 15–25 второго 32-битного слова), затем команды загрузки
-  атрибутов, затем команда запуска. Тип примитива: младшие 3 бита — 4 полоса треугольников, 3 список треугольников;
-  бит 0x10 — с текстурой. Атрибуты различаются ячейкой назначения:
+## FMT-18. Mesh and vertex packets [✓]
+Mesh: `+0x00` u32 number of textures, `+0x04` pointer to a list of pointers to texture records (FMT-19),
+`+0xA0` pointer to the packet chain. The chain is consecutive packets: a 16-byte header (the low 16 bits are the
+data length in 16-byte words, bits 28–30 = 6 "return"), then the data. The end of the chain is the first header with a different
+value of bits 28–30. Inside is a stream of graphics commands packed for the console's video chip (publicly available
+platform documentation); the following is needed for parsing:
+- The **texture setup command** is a list of pairs "parameter number + 64-bit value". For ships the texture
+  parameter value is replaced by a stub: the upper 4 bytes hold the marker `0x12345678`, the lower 4 hold the **texture index in the
+  mesh's list**. For tracks a real texture description is stored (FMT-20). The setup applies to all following
+  chunks, including those in the following packets.
+- A **vertex chunk** starts with a command that loads one 16-byte word into cell 0 (this is the primitive header:
+  the low 15 bits are the number of vertices N; the primitive type is in bits 15–25 of the second 32-bit word), then the commands that load
+  attributes, then the kick command. Primitive type: the low 3 bits — 4 triangle strip, 3 triangle list;
+  bit 0x10 — textured. Attributes are distinguished by the destination cell:
 
-| ячейка | атрибут | формат |
+| cell | attribute | format |
 |---|---|---|
-| 1 | позиция | 3 × f32 |
-| 2 | цвет RGBA | 4 × u8; 128 означает 1.0 (значения до 255 — «пересвет») |
-| 3 | координаты текстуры | 2 × f32, начало — верхний левый угол |
-| 4 | нормаль | 3 × f32 (у трасс нет) |
+| 1 | position | 3 × f32 |
+| 2 | colour RGBA | 4 × u8; 128 means 1.0 (values up to 255 are "overbright") |
+| 3 | texture coordinates | 2 × f32, origin at the top-left corner |
+| 4 | normal | 3 × f32 (tracks have none) |
 
-Полоса из N вершин даёт N−2 треугольников, порядок обхода чередуется. Ориентацию лицевой стороны надёжнее
-определять по нормалям; материалы стоит делать двусторонними.
+A strip of N vertices gives N−2 triangles, the winding order alternates. It is more reliable to determine the front-face orientation
+from the normals; materials should be made double-sided.
 
-## FMT-19. Текстуры, встроенные в модель (корабли) [✓ все текстуры 33 кораблей]
-Запись текстуры: `+0x000` указатель на следующую, `+0x004` имя файла `.clt` (256 байт), `+0x1C0` описание:
-`+0x00` указатель на список уровней (0 — пикселей в файле нет), `+0x14` ширина, `+0x18` высота, `+0x24` бит на пиксель
-(8), `+0x40` описание текстуры для видеочипа (u64). Уровень (первый в списке — полный размер): `+0x10` пакет загрузки
-изображения, `+0x14` пиксели, `+0x18` пакет загрузки палитры, `+0x1C` палитра.
-- Палитра — 256 цветов RGBA8 (16×16); альфа 0…128 означает 0…1. Порядок записей переставлен: в номере цвета
-  меняются местами биты 3 и 4.
-- Пиксели 8-битные. Если пакет загрузки грузит их как 32-битное изображение вдвое меньших ширины и высоты, байты
-  лежат в перемешанной раскладке видеопамяти консоли для 8-битных палитровых текстур (пиксели переставлены; нужно
-  обратное преобразование этой общеизвестной перестановки); иначе — построчно.
+## FMT-19. Textures embedded in a model (ships) [✓ all textures of the 33 ships]
+Texture record: `+0x000` pointer to the next one, `+0x004` `.clt` file name (256 bytes), `+0x1C0` description:
+`+0x00` pointer to the list of levels (0 — there are no pixels in the file), `+0x14` width, `+0x18` height, `+0x24` bits per pixel
+(8), `+0x40` texture description for the video chip (u64). Level (the first in the list is full size): `+0x10` image upload
+packet, `+0x14` pixels, `+0x18` palette upload packet, `+0x1C` palette.
+- The palette is 256 RGBA8 colours (16×16); alpha 0…128 means 0…1. The order of entries is permuted: in the colour index
+  bits 3 and 4 are swapped.
+- Pixels are 8-bit. If the upload packet uploads them as a 32-bit image of half the width and half the height, the bytes
+  lie in the console's scrambled video-memory layout for 8-bit paletted textures (pixels are permuted; the
+  inverse of this well-known permutation is needed); otherwise — row by row.
 
-## FMT-20. Особенности моделей трасс [✓ все 45 трасс]
-- **Текстуры не встроены:** записи текстур есть (имя, размер, описание), но список уровней пуст. Пиксели лежат в
-  `TRACKS/<ТРАССА>/TEXTURES/<имя>.MEM` — имя файла = имя `.clt` из записи, без пути и расширения, в верхнем регистре.
-  Это образ `.MEM` (FMT-13) с **одной записью текстуры** в формате FMT-19 (с пикселями, палитрой и уровнями
-  детализации). [✓ найдены файлы для всех 5979 ссылок на текстуры во всех 45 трассах]
-- Настройка текстуры в пакетах — настоящее 64-битное описание текстуры (адреса изображения и палитры в видеопамяти,
-  размер и формат). В моделях трассы и неба порции ссылаются именно на это описание, а не на запись
-  текстуры; описания пересобираются при загрузке уровня, поэтому их младшие 32 бита у разных уровней
-  различаются, а не образуют сквозную таблицу.
-- **Список загрузки текстур лежит в самом файле уровня**: записи по ~640 байт, каждая хранит свой путь
-  (`//data//tracks//<трасса>//textures//<имя>.clt`) — у Florion 1F их 181, таблица указателей в хвосте файла.
-  Имя файла картинки берётся из этого пути (`<имя>.MEM` в `TEXTURES/`), а не из описания текстуры.
-  Прежнее утверждение «все 5979 ссылок нашли файлы по записям меша» для моделей трассы неверно: записи текстур
-  в моделях — ложные срабатывания (пустые/мусорные имена), а привязку даёт именно список загрузки уровня. Записи с нулевым описанием — текстуры,
-  место которых в видеопамяти назначается во время игры (их подгружают по мере надобности); **это не признак анимации**:
-  так же устроены и обычные постоянные картинки. Для конвертера достаточно файла из `TEXTURES/`. [код; ?]
-- **Движущиеся картинки трасс** — видео: рекламные щиты и экраны — ролики `.IPF` из `DATA/BILLBOARDS/<команда>/`,
-  они показываются на прямоугольниках объектов `ANIM_ANITEX_*` трассы; вода на Mandrashee и Alca Vexus —
-  ролики `BILLBOARDS/WATER/WATER.IPF` и `AWATER.IPF`. Как анимируются табло старта, лава и площадки — OQ-39. [код]
-  Вид [✓ наблюдение игрока, PAL]:
-  - **оружейная площадка** (активная) светится, как ускоритель, но сплошной заливкой, которая переливается по цветам
-    (как RGB-подсветка): достаточно быстро, чтобы соседние площадки были разного цвета, и достаточно медленно, чтобы
-    смена на глазах не была заметна — игрок видит «пятна разных цветов» (перелив достаточно быстрый); точный
-    период не важен;
-  - **после подбора** площадка сразу становится **чёрной**, без анимации; снова загорается тоже без анимации
-    [✓ наблюдение игрока, PAL, 4 круга]; в режимах, где площадки выключены,
-    они на трассе есть, но тоже чёрные;
-  - **ускоритель** светится ровно, синим; игрок оценивает его силу по длине синей полосы, а не по числу стрелок;
-  - **лава** (Florion Height 2F/2R) — неподвижная текстура, без анимации [✓ наблюдение игрока, PAL]; при обычной езде её почти не видно.
-- Цвета вершин содержат «запечённое» освещение; нормалей нет.
-- **Второй набор пакетов:** кроме основной цепочки, у меша есть область между указателями `+0xB0` и `+0xB4` со
-  множеством коротких потоков команд (без 16-байтных заголовков пакетов). Каждый поток начинается там, куда указывает
-  какой-либо указатель из записей ячеек трассы, и идёт до начала следующего. По настройкам смешивания — это
-  прозрачные и полупрозрачные части, которые рисуются отдельным проходом (2–14% треугольников трассы). [✓ состав; назначение — ?]
+## FMT-20. Features of track models [✓ all 45 tracks]
+- **Textures are not embedded:** texture records exist (name, size, description), but the list of levels is empty. The pixels are in
+  `TRACKS/<TRACK>/TEXTURES/<name>.MEM` — file name = the `.clt` name from the record, without path and extension, in upper case.
+  This is a `.MEM` image (FMT-13) with **one texture record** in the FMT-19 format (with pixels, palette and
+  detail levels). [✓ files found for all 5979 texture references in all 45 tracks]
+- The texture setup in the packets is a real 64-bit texture description (image and palette addresses in video memory,
+  size and format). In the track and sky models the chunks refer to exactly this description, not to the texture
+  record; the descriptions are rebuilt when a level loads, so their low 32 bits differ between
+  levels and do not form a continuous table.
+- **The texture load list is in the level file itself**: records of ~640 bytes, each holding its own path
+  (`//data//tracks//<track>//textures//<name>.clt`) — Florion 1F has 181 of them, the pointer table is at the end of the file.
+  The picture file name is taken from this path (`<name>.MEM` in `TEXTURES/`), not from the texture description.
+  The earlier claim "all 5979 references found files via the mesh records" is wrong for track models: the texture records
+  in the models are false positives (empty/garbage names), and the binding is given by the level's load list. Records with a zero description are textures
+  whose place in video memory is assigned during the game (they are loaded on demand); **this is not a sign of animation**:
+  ordinary permanent pictures are arranged the same way. For the converter the file from `TEXTURES/` is enough. [code; ?]
+- **Moving pictures on tracks** are video: billboards and screens are `.IPF` clips from `DATA/BILLBOARDS/<team>/`,
+  shown on the rectangles of the track's `ANIM_ANITEX_*` objects; the water on Mandrashee and Alca Vexus is
+  the clips `BILLBOARDS/WATER/WATER.IPF` and `AWATER.IPF`. How the start board, lava and pads are animated — OQ-39. [code]
+  Appearance [✓ player observation, PAL]:
+  - an (active) **weapon pad** glows like a booster, but with a solid fill that shifts through colours
+    (like RGB backlighting): fast enough that neighbouring pads are of different colours, and slow enough that
+    the change is not noticeable before your eyes — the player sees "patches of different colours" (the shift is fast enough); the exact
+    period does not matter;
+  - **after pickup** the pad immediately turns **black**, with no animation; it lights up again also without animation
+    [✓ player observation, PAL, 4 laps]; in modes where the pads are disabled,
+    they are present on the track but are also black;
+  - a **booster** glows steadily, blue; the player judges its strength by the length of the blue stripe, not by the number of arrows;
+  - **lava** (Florion Height 2F/2R) is a static texture, no animation [✓ player observation, PAL]; it is barely visible in normal driving.
+- Vertex colours contain "baked" lighting; there are no normals.
+- **Second set of packets:** besides the main chain, the mesh has an area between the pointers `+0xB0` and `+0xB4` with
+  many short command streams (without 16-byte packet headers). Each stream starts where some pointer from the track cell
+  records points and runs to the start of the next one. Judging by the blending settings, these are the
+  transparent and semi-transparent parts, drawn in a separate pass (2–14% of the track's triangles). [✓ composition; purpose — ?]
 
-## FMT-21. SFX_TAGGED.GEO (корабли) [✓ все 33]
-`u32 N`, 12 байт заполнения, затем N записей по 32 байта: `{u32 метка, 3 × f32 направление, vec4 позиция}`.
-Координаты — в пространстве модели корабля (FMT-17). У кораблей 8 точек: по 4 с меткой 0 и 1 у правого и левого
-двигателя на корме, направление (0, 0, 1). Это места **факелов двигателей** (игра берёт их отсюда для эффекта
-пламени). [код]
+## FMT-21. SFX_TAGGED.GEO (ships) [✓ all 33]
+`u32 N`, 12 bytes of padding, then N entries of 32 bytes: `{u32 tag, 3 × f32 direction, vec4 position}`.
+Coordinates are in the ship model space (FMT-17). Ships have 8 points: 4 each with tag 0 and 1 at the right and left
+engine at the stern, direction (0, 0, 1). These are the **engine flame** locations (the game takes them from here for the
+flame effect). [code]
 
-## FMT-22. Повреждения кораблей в моделях [✓ все 33 корабля; когда включаются — OQ-41]
-У каждого объекта верхнего уровня, кроме тени, дочерние узлы — **группы деталей**, по одной на участок корабля
-(в полной модели 8–14 групп, в упрощённой 4–8). У группы:
-- **собственный меш — целая версия** участка;
-- **единственный дочерний узел — повреждённая версия** того же участка (рваная обшивка, сорванные панели, торчащие
-  элементы, трещины на стекле) в тех же координатах; есть почти у всех групп;
-- у повреждённой версии полной модели — 0–10 дочерних **обломков** (отдельные куски обшивки и рваные кромки).
-Меш самого объекта верхнего уровня (корпус) не меняется. [✓ рендер целой и повреждённой версий]
+## FMT-22. Ship damage in models [✓ all 33 ships; when it is switched on — OQ-41]
+Every top-level object except the shadow has child nodes that are **part groups**, one per area of the ship
+(8–14 groups in the full model, 4–8 in the simplified one). A group has:
+- **its own mesh — the intact version** of the area;
+- **a single child node — the damaged version** of the same area (torn plating, ripped-off panels, protruding
+  elements, cracks on the glass) in the same coordinates; almost all groups have it;
+- the damaged version of the full model has 0–10 child **debris pieces** (separate pieces of plating and ragged edges).
+The mesh of the top-level object itself (the hull) does not change. [✓ render of the intact and damaged versions]
 
-Имя группы называет участок и зону урона (имена из файлов, разные художники писали по-разному):
+The group name names the area and the damage zone (names are from the files, different artists wrote them differently):
 
-| в имени | зона | примеры имён групп |
+| in the name | zone | example group names |
 |---|---|---|
-| `ENGINE` | двигатель (`mdamage_engine_*`, SHIP-7) | `DAMAGE_ENGINE`, `DAMAGE_ENGINE_LEFT_OFF` |
-| `NOSE` | нос (`mdamage_nosecone_*`) | `DAMAGE_NOSE`, `DAMAGE_NOSE_OFF` |
-| `STAB` | стабилизаторы (`mdamage_stability_*`) | `DAMAGE_STABILITY`, `DAMAGE_STABILITY_RIGHT_OFF` |
-| `BRAKE`, `FLAP`, `RUDDER` | аэротормоза (`mdamage_airbrakes_*`) | `DAMAGE_LFLAPA_BRAKE`, `DAMAGE_RBRAKE`, `DAMAGE_LRUDDER_BRAKE` |
-| `CANOPY`, `COCKPIT` | фонарь и кабина (своей зоны в `SHIPS.INI` нет) | `DAMAGE_CANOPY`, `DAMAGE_COCKPIT` |
-| `GUN` | оружейный узел, повреждённой версии нет (EG-R, Xios) | `GUN_WEAPON` |
+| `ENGINE` | engine (`mdamage_engine_*`, SHIP-7) | `DAMAGE_ENGINE`, `DAMAGE_ENGINE_LEFT_OFF` |
+| `NOSE` | nose (`mdamage_nosecone_*`) | `DAMAGE_NOSE`, `DAMAGE_NOSE_OFF` |
+| `STAB` | stabilizers (`mdamage_stability_*`) | `DAMAGE_STABILITY`, `DAMAGE_STABILITY_RIGHT_OFF` |
+| `BRAKE`, `FLAP`, `RUDDER` | airbrakes (`mdamage_airbrakes_*`) | `DAMAGE_LFLAPA_BRAKE`, `DAMAGE_RBRAKE`, `DAMAGE_LRUDDER_BRAKE` |
+| `CANOPY`, `COCKPIT` | canopy and cockpit (no zone of its own in `SHIPS.INI`) | `DAMAGE_CANOPY`, `DAMAGE_COCKPIT` |
+| `GUN` | weapon unit, no damaged version (EG-R, Xios) | `GUN_WEAPON` |
 
-Повреждённые версии называются `<участок>_ON` (`NO_ON`, `ENG_LEFT_ON`, `STAB_RIGHT_ON`) или `AA_`; суффикс
-`_OFF` у группы — «повреждение выключено». Обломки — `<участок>_PART_nn`, `_PRT_nn`, `_EDGE_nn` или `AAA_`.
-Значит, видимое повреждение переключается **по участкам независимо**: целая версия заменяется повреждённой.
-Когда именно и отлетают ли обломки — OQ-41.
+Damaged versions are called `<area>_ON` (`NO_ON`, `ENG_LEFT_ON`, `STAB_RIGHT_ON`) or `AA_`; the suffix
+`_OFF` on a group means "damage switched off". Debris pieces are `<area>_PART_nn`, `_PRT_nn`, `_EDGE_nn` or `AAA_`.
+So the visible damage is switched **per area independently**: the intact version is replaced by the damaged one.
+When exactly this happens and whether debris pieces fly off — OQ-41.
 
-## FMT-23. Дорожка ключевых кадров узла [✓]
-`+0x110` u32: старшие 16 бит — число ключей K, младшие — 1; `+0x114` u32 — длина в кадрах (160–239);
-`+0x118` — указатель на K ключей по 0x38 байт: `{u32 кадр, 3×3 f32 поворот (строки), 3 f32 перенос, u32 флаги}`.
-Ключ задаёт локальную матрицу узла целиком (как матрица узла в FMT-17). Узел без анимации: K = 0 или 2 одинаковых ключа (кадры 0
-и последний). Движется только **фонарь кабины** (`DAMAGE_CANOPY…`) у 22 кораблей: у одних откидывается на петле
-(поворот до 60°), у других приподнимается (сдвиг ~1.2). Кадры — игровые (50 в секунду): цикл 3.2–4.8 с.
-Когда игра проигрывает эту анимацию (катапультирование при уничтожении?) — OQ-42. [?]
+## FMT-23. Node keyframe track [✓]
+`+0x110` u32: the upper 16 bits are the number of keys K, the lower ones are 1; `+0x114` u32 — length in frames (160–239);
+`+0x118` — pointer to K keys of 0x38 bytes: `{u32 frame, 3×3 f32 rotation (rows), 3 f32 translation, u32 flags}`.
+A key defines the node's whole local matrix (like the node matrix in FMT-17). A node without animation: K = 0 or 2 identical keys (frames 0
+and the last). Only the **cockpit canopy** (`DAMAGE_CANOPY…`) of 22 ships moves: on some it swings open on a hinge
+(rotation up to 60°), on others it lifts up (shift ~1.2). Frames are game frames (50 per second): a cycle of 3.2–4.8 s.
+When the game plays this animation (ejection on destruction?) — OQ-42. [?]
 
-## FMT-24. .SPL — линии ИИ и стартовой решётки [✓ все 18 файлов: Florion Height, Vohl Square, Cubiss Float]
-`u32 100`, `u32` число линий L, затем L линий:
-| поле | размер |
+## FMT-24. .SPL — AI lines and the starting grid [✓ all 18 files: Florion Height, Vohl Square, Cubiss Float]
+`u32 100`, `u32` number of lines L, then L lines:
+| field | size |
 |---|---|
-| число точек N | u32 |
-| имя (`AI_pitlane,0-40`, `AI_starting_grid_right,0-36`, `AI_1F_main_route,24-218`, `AI_1F_split10,0-35`…) | 40 байт, хвост заполнен 0xCC |
-| `u16 0xFFFF`, `u32 N−1`, `u32` вид связи (3 — одна следующая линия, 2 — развилка, 1 — ?), `i32` следующая линия, `i32` вторая следующая (−1 — нет) | 18 байт |
-| 12 байт: нули или флаги (у развилок) | 12 |
-| N × `{f32 x, y, z, f32 левая граница}` — точки (шаг ~21.5) и отступ влево от линии (отрицательный) | 16·N |
-| N × `{f32 dx, 0, dz, f32 правая граница}` — единичный вектор вбок и отступ вправо | 16·N |
-Основная линия разбита на куски с диапазонами точек в имени (`…,0-10`, `…,10-18`); связи «следующая линия» соединяют
-куски, ответвления (`split`), пит-лейн и две линии стартовой решётки в сеть.
-**ИИ ведёт корабли по линиям `.SPL` раскладки** [✓ изменённая игра, PAL: ИИ проходит трассы с такими линиями без касаний стен]. Соглашения данных, нарушение которых ИИ не прощает
-[✓ изменённая игра, PAL]:
-- **вектор «вбок» смотрит вправо по ходу**: (dx, dz) = (dir.z, −dir.x), где dir — направление на следующую точку
-  (так у 22040 из 22339 точек оригиналов); с перевёрнутым вектором ИИ выбирает траекторию не с той стороны и бьётся о стену;
-- **стык кусков**: первая точка следующей линии лежит примерно на шаг (~21) **впереди** последней точки предыдущей
-  (медиана по 608 стыкам оригиналов 21.4); если следующая линия начинается позади или далеко впереди, ИИ
-  разворачивается на месте.
-**Место корабля в Time Trial — у начала линии `AI_starting_grid_right`** (в ~9 ед. по ходу от её первой точки)
-[✓ наблюдение: Florion 1F, место появления (−189.5, 3, −20.7), первая точка линии (−181.0, 3, −18.3)].
+| number of points N | u32 |
+| name (`AI_pitlane,0-40`, `AI_starting_grid_right,0-36`, `AI_1F_main_route,24-218`, `AI_1F_split10,0-35`…) | 40 bytes, tail filled with 0xCC |
+| `u16 0xFFFF`, `u32 N−1`, `u32` link kind (3 — one next line, 2 — fork, 1 — ?), `i32` next line, `i32` second next (−1 — none) | 18 bytes |
+| 12 bytes: zeros or flags (on forks) | 12 |
+| N × `{f32 x, y, z, f32 left boundary}` — points (step ~21.5) and the offset to the left of the line (negative) | 16·N |
+| N × `{f32 dx, 0, dz, f32 right boundary}` — unit sideways vector and the offset to the right | 16·N |
+The main line is split into pieces with point ranges in the name (`…,0-10`, `…,10-18`); "next line" links join the
+pieces, the branches (`split`), the pit lane and the two starting-grid lines into a network.
+**The AI drives ships along the `.SPL` lines of the layout** [✓ modified game, PAL: the AI drives tracks with such lines without touching walls]. Data conventions that the AI does not forgive breaking
+[✓ modified game, PAL]:
+- **the "sideways" vector points right along the direction of travel**: (dx, dz) = (dir.z, −dir.x), where dir is the direction to the next point
+  (so for 22040 of the 22339 points of the originals); with a reversed vector the AI picks a trajectory on the wrong side and hits the wall;
+- **the joint between pieces**: the first point of the next line lies about one step (~21) **ahead** of the last point of the previous one
+  (median over the 608 joints of the originals 21.4); if the next line starts behind, or far ahead, the AI
+  turns around on the spot.
+**The ship's place in Time Trial is at the start of the `AI_starting_grid_right` line** (~9 units along the direction of travel from its first point)
+[✓ observation: Florion 1F, spawn place (−189.5, 3, −20.7), first point of the line (−181.0, 3, −18.3)].
 
-## FMT-25. .TRI — объекты, сплайны, пути, звуки [✓ все 36 файлов (большие и малые) читаются до последнего байта]
-`'VERS'`, `i32 4`, затем i32: объектов, сплайнов, путей, звуков, имён. Далее:
-- `'NAME'` и имена `{u8 длина с нулём, символы}` (имена моделей: `anim_loop3000_gore3`, `speedup_wider`, `weapon_gridwider`…;
-  у малых файлов имён и тега `NAME` нет);
-- объекты по 588 байт: матрица 4×4 (строки, перенос в последней строке), `u32` номер имени, `u32` тип, `u32` маска,
-  `u16`, `u16`, 508 байт (0xCC, если тип их не использует). Типы [файлы; назначение — ?]: **4** — 16 мест стартовой
-  решётки (`u16` = место 1…16, пары мест ~53 поперёк, ~61 вдоль); **5** — места с дополнительными данными; **6** — модель
-  ускорителя; **7** — модель оружейной площадки; **10** — редкий; **11** — анимированные декорации и служебные анимации
-  `anim_control*` (камеры пролёта, `pd1…16`, `sp1…16` — по 16, видимо, для кораблей на старте);
-- сплайны: `{u8 длина, имя, u32 точек N, N × 40 байт (x, y, z, —, вектор вбок x, y, z, —, f32 слева, f32 справа),
-  u32 M, M × 7 i32 (разбиение на куски и связи)}` — те же сети линий ИИ, что и в `.SPL` (`.SPL` — их разбиение на
-  куски);
-- пути: `{u32 N, N × vec4}` — короткие ломаные (4–8 точек; одна — вертикальный подъём на ~15, похоже, подъёмник старта);
-- `'SNDS'` и звуки по 32 байта: `{vec4 позиция, u32 звук, f32 ближняя граница, f32 дальняя граница, f32 1.0}`.
-Малый `C*.TRI` — тот же формат: 0 объектов, 2–5 сплайнов, 0 путей и звуков.
+## FMT-25. .TRI — objects, splines, paths, sounds [✓ all 36 files (large and small) are read to the last byte]
+`'VERS'`, `i32 4`, then i32: objects, splines, paths, sounds, names. Then:
+- `'NAME'` and the names `{u8 length with the zero, characters}` (model names: `anim_loop3000_gore3`, `speedup_wider`, `weapon_gridwider`…;
+  small files have no names and no `NAME` tag);
+- objects of 588 bytes: 4×4 matrix (rows, translation in the last row), `u32` name number, `u32` type, `u32` mask,
+  `u16`, `u16`, 508 bytes (0xCC if the type does not use them). Types [files; purpose — ?]: **4** — the 16 places of the starting
+  grid (`u16` = place 1…16, pairs of places ~53 across, ~61 along); **5** — places with extra data; **6** — booster
+  model; **7** — weapon pad model; **10** — rare; **11** — animated scenery and service animations
+  `anim_control*` (flyover cameras, `pd1…16`, `sp1…16` — 16 each, apparently for the ships at the start);
+- splines: `{u8 length, name, u32 points N, N × 40 bytes (x, y, z, —, sideways vector x, y, z, —, f32 left, f32 right),
+  u32 M, M × 7 i32 (split into pieces and links)}` — the same AI line networks as in `.SPL` (`.SPL` is their split into
+  pieces);
+- paths: `{u32 N, N × vec4}` — short polylines (4–8 points; one is a vertical rise of ~15, apparently the start lift);
+- `'SNDS'` and sounds of 32 bytes: `{vec4 position, u32 sound, f32 near boundary, f32 far boundary, f32 1.0}`.
+The small `C*.TRI` is the same format: 0 objects, 2–5 splines, 0 paths and sounds.
 
-## FMT-26. Ячейки модели трассы и видимость [✓ Florion Height 1F; число ячеек и размер `VISI` — все 45 трасс]
-Меш модели трассы (FMT-18, FMT-20): `+0xBC` — число ячеек C, `+0xC0` — указатель на массив ячеек по 0xD0 байт:
-| смещение | поле |
+## FMT-26. Track model cells and visibility [✓ Florion Height 1F; cell count and `VISI` size — all 45 tracks]
+Track model mesh (FMT-18, FMT-20): `+0xBC` — number of cells C, `+0xC0` — pointer to an array of cells of 0xD0 bytes:
+| offset | field |
 |---|---|
-| +0x00 | 8 углов коробки ячейки (vec4, w = 1): сначала верхние (y max), потом нижние |
-| +0x80 | `u32` число непрозрачных списков (0/1), `+0x8C` — указатель на список (последовательность команд отрисовки, оканчивается маркером конца), `+0x90` — его размер в байтах |
-| +0x9C | `u32` число полупрозрачных списков, `+0xA0` — указатель, `+0xA4` — размер (область между `+0xB0` и `+0xB4` меша) |
-| +0xA8… | у части ячеек — число, 4 f32 и 4 указателя (назначение — OQ-40) |
-Ячейки — квадраты в плане (~230 × 220 у Florion 1F). Список ячейки: заголовок настроек отрисовки (выбор текстуры, режим
-прозрачности и смешения), затем пачки по 3–12 вершин: тип примитива (полоса или список треугольников), цвета (4 × u8),
-UV (2 × f32), позиции (3 × f32). Какие ячейки рисовать, решает строка `VISI` текущей секции (FMT-3): **бит i — ячейка i**
-[✓ для 96 % секций Florion 1F все 10 ближайших ячеек помечены видимыми]. Порядок обхода треугольников у оригинала
-смешанный (~53/47) — отсечения «обратной стороны» нет.
+| +0x00 | 8 corners of the cell box (vec4, w = 1): the upper ones first (y max), then the lower ones |
+| +0x80 | `u32` number of opaque lists (0/1), `+0x8C` — pointer to the list (a sequence of draw commands, ending with an end marker), `+0x90` — its size in bytes |
+| +0x9C | `u32` number of semi-transparent lists, `+0xA0` — pointer, `+0xA4` — size (the area between `+0xB0` and `+0xB4` of the mesh) |
+| +0xA8… | for some cells — a number, 4 f32 and 4 pointers (purpose — OQ-40) |
+Cells are squares in plan (~230 × 220 at Florion 1F). A cell's list: a header of draw settings (texture selection, transparency
+and blending mode), then batches of 3–12 vertices: primitive type (strip or triangle list), colours (4 × u8),
+UV (2 × f32), positions (3 × f32). Which cells to draw is decided by the `VISI` row of the current section (FMT-3): **bit i — cell i**
+[✓ for 96 % of the sections of Florion 1F all 10 nearest cells are marked visible]. The triangle winding order in the original
+is mixed (~53/47) — there is no back-face culling.
 
 
-## FMT-27. Небо и облака трассы [код]
+## FMT-27. Track sky and clouds [code]
 
-Папка трассы может содержать (не у всех трасс):
+A track folder may contain (not for all tracks):
 
-* `SKY_*` / `SKY` — каталоги, внутри `SKY.MEM` (обычная модель купола/панорамы неба, читается как FMT-18) и `TEXTURES/` с текстурными `.MEM`. У Florion Height три слоя (`SKY_1..SKY_3`), у CUBISS_FLOAT четыре, у VOHL_SQUARE — `SKY` (+`SKY.TRF`) и `SKY_1`/`SKY_2`.
-* `CLOUDS.CFI` — только Florion Height (1396 байт): первое 32-битное слово = число слоёв (3), далее N блоков по 0x140 байт (80 f32) и хвост из вершин облаков.
+* `SKY_*` / `SKY` — directories, inside them `SKY.MEM` (an ordinary sky dome/panorama model, read as FMT-18) and `TEXTURES/` with texture `.MEM` files. Florion Height has three layers (`SKY_1..SKY_3`), CUBISS_FLOAT has four, VOHL_SQUARE has `SKY` (+`SKY.TRF`) and `SKY_1`/`SKY_2`.
+* `CLOUDS.CFI` — Florion Height only (1396 bytes): the first 32-bit word = number of layers (3), then N blocks of 0x140 bytes (80 f32) and a tail of cloud vertices.
 
-Блок слоя (80 f32): первые 16 — матрица 4×4 (масштаб ~6400 ед., т.е. дальняя граница обзора), затем ~60 f32 (вероятно, параметры отдельных облаков: высоты/размеры/скорости), последние 4 f32 — завершающая четвёрка параметров (назначение не расшифровано, похоже на скорость/масштаб/повторение текстуры).
+Layer block (80 f32): the first 16 are a 4×4 matrix (scale ~6400 units, i.e. the far view limit), then ~60 f32 (probably parameters of individual clouds: heights/sizes/speeds), the last 4 f32 are the final quadruple of parameters (purpose not deciphered, looks like speed/scale/texture repeat).
 
-Хвост — пул вершин облаков: группы по 4 вершины `{x,y,z,u,v}` (v всегда 1.0), 20 вершин = 5 квадов + 1 лишняя вершина (назначение неясно). Привязку «какие квады к какому слою» и смысл средних 60 f32 блока расшифровать не удалось — открытый пункт.
+The tail is a pool of cloud vertices: groups of 4 vertices `{x,y,z,u,v}` (v is always 1.0), 20 vertices = 5 quads + 1 extra vertex (purpose unclear). Which quads belong to which layer and the meaning of the middle 60 f32 of the block could not be deciphered — an open item.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Automatic contamination check for the clean-room specification.
 
-Usage:  python process/check_spec.py [SPEC_DIR]
+Usage:  python docs/process/check_spec.py [SPEC_DIR ...]
 
-Scans SPEC_DIR (default: spec/ next to this script's parent) for things that must not
+Scans each SPEC_DIR (default: docs/spec and docs/ru/spec) for things that must not
 appear in a clean-room spec: memory/code addresses, decompiler labels, original internal
 identifiers, references to reverse-engineering materials. If the dirty-room notes
 (notes/) are present, identifiers from them are also searched for in the spec.
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-SPEC = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "spec"
+SPECS = [Path(a) for a in sys.argv[1:]] or [ROOT / "docs" / "spec", ROOT / "docs" / "ru" / "spec"]
 NOTES = ROOT / "docs" / "notes"
 ALLOWED_FILE = Path(__file__).resolve().parent / "allowed_names.txt"
 
@@ -27,7 +27,7 @@ PATTERNS = [
     (r"\b\w+_Q\b", "hypothesis-name suffix _Q from the reverse-engineering notes"),
     (r"\bg_[A-Za-z]\w*", "global-variable name"),
     (r"\b\w+\.(cpp|h|c|java|py|ps1)\b", "source / tool file name"),
-    (r"(?i)\b(ghidra|decomp\w*|disasm\w*|дизасм\w*|декомпил\w*|sstate|сейвстейт\w*|телеметр\w*)\b",
+    (r"(?i)\b(ghidra|decomp\w*|disasm\w*|дизасм\w*|декомпил\w*|sstate|savestate\w*|telemetry|сейвстейт\w*|телеметр\w*)\b",
      "reference to reverse-engineering tooling"),
     (r"\bnotes/|\.\./notes", "link to the dirty-room materials"),
     (r"(?i)\b\w+\s*\+\s*0x[0-9A-Fa-f]{2,}", "in-memory structure offset"),
@@ -68,8 +68,9 @@ def is_allowed(match_text, allowed):
 
 
 def main():
-    if not SPEC.is_dir():
-        print(f"spec directory not found: {SPEC}")
+    missing = [d for d in SPECS if not d.is_dir()]
+    if missing:
+        print(f"spec directory not found: {missing[0]}")
         return 2
     allowed = load_allowed()
     dirty = dirty_identifiers(allowed)
@@ -77,18 +78,18 @@ def main():
     compiled = [(re.compile(p), why) for p, why in PATTERNS]
 
     findings = 0
-    for path in sorted(SPEC.rglob("*.md")):
+    for path in sorted(p for d in SPECS for p in d.rglob("*.md")):
         for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             for rx, why in compiled:
                 for m in rx.finditer(line):
                     if is_allowed(m.group(0), allowed):
                         continue
                     findings += 1
-                    print(f"{path.relative_to(SPEC.parent)}:{lineno}: {why}: {m.group(0)!r}")
+                    print(f"{path.relative_to(ROOT)}:{lineno}: {why}: {m.group(0)!r}")
             if dirty_re:
                 for m in dirty_re.finditer(line):
                     findings += 1
-                    print(f"{path.relative_to(SPEC.parent)}:{lineno}: identifier from the notes: {m.group(0)!r}")
+                    print(f"{path.relative_to(ROOT)}:{lineno}: identifier from the notes: {m.group(0)!r}")
 
     note = "" if NOTES.is_dir() else " (notes/ not found: identifier cross-check skipped)"
     if findings:

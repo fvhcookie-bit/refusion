@@ -1,69 +1,69 @@
-# 00. Глоссарий
+# 00. Glossary
 
-Термины спецификации. Английские слова — это ключи файлов данных или текст на экране игры.
+Terms used in the specification. English words are data file keys or on-screen game text.
 
-## Время и симуляция
-| термин | значение |
+## Time and simulation
+| term | meaning |
 |---|---|
-| **кадр** | шаг игровой логики, 20 мс игрового времени (GEN-1) |
-| **подшаг** | половина кадра для физики, 0.01 с (PHY-1) |
-| **часы гонки** | игровое время с момента подготовки гонки, без пауз (FLOW-4, FLOW-9) |
-| **T** | время старта гонки по часам гонки, 4…7 с (FLOW-5) |
-| **импульс за подшаг** | «сила» в формулах физики: прибавляется к скорости без умножения на время (PHY-10) |
+| **frame** | one step of game logic, 20 ms of game time (GEN-1) |
+| **substep** | half a frame for physics, 0.01 s (PHY-1) |
+| **race clock** | game time since the race was set up, without pauses (FLOW-4, FLOW-9) |
+| **T** | race start time on the race clock, 4…7 s (FLOW-5) |
+| **per-substep impulse** | the "force" in physics formulas: added to velocity without multiplying by time (PHY-10) |
 
-## Трасса
-| термин | значение |
+## Track
+| term | meaning |
 |---|---|
-| **трасса** | пара окружение + раскладка; **код трассы** `env·6 + circuit` (GEN-5) |
-| **секция / подсекция** | участки геометрии трассы из файла `.TRK`; у секции есть «ворота» входа/выхода (FMT-3) |
-| **доля круга** | число 0…1 для подсекции из файла `.LAP` (FMT-4) |
-| **покрытие** | тип полигона трассы, определяется по имени материала (PHY-17) |
-| **подтип покрытия** | звук/частицы/демпфирование: water, ice, rock, sand, stone, damage (PHY-18) |
-| **триггер полигона** | особый полигон: ускоритель, оружейная площадка, переворот, мины (PHY-19) |
-| **ускоритель** | триггер, разгоняющий корабль (PHY-11) |
-| **оружейная площадка** | триггер, на котором корабль получает оружие (WPN-3) |
-| **пит-лейн** | участок с ограничением скорости и подзарядкой щита (PHY-24) |
-| **трамплин** | покрытие `air1/2/3`, подбрасывает корабль (PHY-20) |
-| **линия старта** | покрытие `start`; её пересечение меняет счётчик кругов (RACE-3) |
+| **track** | a pair of environment + layout; **track code** `env·6 + circuit` (GEN-5) |
+| **section / subsection** | stretches of track geometry from the `.TRK` file; a section has entry/exit "gates" (FMT-3) |
+| **lap progress** | a number 0…1 for a subsection from the `.LAP` file (FMT-4) |
+| **surface** | the type of a track polygon, determined by the material name (PHY-17) |
+| **surface subtype** | sound/particles/damping: water, ice, rock, sand, stone, damage (PHY-18) |
+| **polygon trigger** | a special polygon: booster, weapon pad, flip, mines (PHY-19) |
+| **booster** | a trigger that accelerates the ship (PHY-11) |
+| **weapon pad** | a trigger on which the ship receives a weapon (WPN-3) |
+| **pit lane** | a stretch with a speed limit and shield recharge (PHY-24) |
+| **jump ramp** | the `air1/2/3` surface, launches the ship into the air (PHY-20) |
+| **start line** | the `start` surface; crossing it changes the lap counter (RACE-3) |
 
-## Корабль
-| термин | значение |
+## Ship
+| term | meaning |
 |---|---|
-| **команда** | одна из 8 (Feisar … Piranha), номер 0–7 (SHIP-1) |
-| **пилот lead / second** | первый / второй пилот команды, номер в команде 0 / 1 (SHIP-1) |
-| **слот** | номер корабля в таблицах результатов: `команда·2 + пилот` (SHIP-2) |
-| **параметры корабля** | значения секции `SHIPS.INI` для слота (SHIP-3) |
-| **живые параметры** | копия параметров на время гонки; её меняют апгрейды, урон, оружие, Zone (SHIP-4) |
-| **апгрейд** | уровень 1–6 одной из 6 групп, заменяет базовый параметр (SHIP-5) |
-| **щит** | запас прочности; 0 — корабль уничтожен (SHIP-6) |
-| **узлы / повреждения узлов** | двигатель, нос, стабилизаторы, аэротормоза; 0…1 (SHIP-7) |
-| **эффективная максимальная скорость** | `maxspeed` с учётом всех множителей в этом подшаге (PHY-4) |
-| **ввод** | действия и оси геймпада; ИИ пишет те же поля (SHIP-11, AI-1) |
-| **автопилот** | кораблём игрока управляет ИИ, геймпад игнорируется (FLOW-10) |
-| **газ до старта / заглох** | газ, зажатый до старта, и штраф за него (FLOW-6) |
-| **рывок** | мгновенный стартовый или турбо-разгон заданной силы (FLOW-6, WPN-6) |
+| **team** | one of 8 (Feisar … Piranha), number 0–7 (SHIP-1) |
+| **pilot lead / second** | the first / second pilot of a team, pilot number within the team 0 / 1 (SHIP-1) |
+| **slot** | the ship number in results tables: `team·2 + pilot` (SHIP-2) |
+| **ship parameters** | the values of the `SHIPS.INI` section for a slot (SHIP-3) |
+| **live parameters** | a copy of the parameters for the duration of a race; changed by upgrades, damage, weapons, Zone (SHIP-4) |
+| **upgrade** | level 1–6 of one of 6 groups, replaces a base parameter (SHIP-5) |
+| **shield** | the durability reserve; 0 means the ship is destroyed (SHIP-6) |
+| **components / component damage** | engine, nose, stabilizers, airbrakes; 0…1 (SHIP-7) |
+| **effective maximum speed** | `maxspeed` with all multipliers of this substep applied (PHY-4) |
+| **input** | gamepad actions and axes; the AI writes the same fields (SHIP-11, AI-1) |
+| **autopilot** | the AI controls the player's ship, the gamepad is ignored (FLOW-10) |
+| **throttle before start / stalled** | throttle held down before the start, and the penalty for it (FLOW-6) |
+| **burst** | an instant start or turbo acceleration of a given strength (FLOW-6, WPN-6) |
 
-## Гонка и результаты
-| термин | значение |
+## Race and results
+| term | meaning |
 |---|---|
-| **событие** | описание одной гонки в `GAME.BNI`: тип, трасса, круги, пилоты, пороги медалей, оружие (FLOW-2, FMT-8) |
-| **прогресс** | `круг − долг + доля_подсекции`; по нему сортируются места (RACE-2) |
-| **долг** | число пересечений линии старта задом, ещё не компенсированных (RACE-2) |
-| **текущая позиция** | место по прогрессу в этом кадре (RACE-5) |
-| **таблица финиша** | итоговые места: заполняется в момент финиша или выбывания (FLOW-12) |
-| **вне гонки** | корабль финишировал или выбыл; его результат зафиксирован |
-| **уничтожен** | щит дошёл до 0; через 7.2 с корабль выбывает (SHIP-9) |
-| **выбыл** | вне гонки без места: уничтожен, снят с лавы и т.п. |
-| **убийство** | уничтожение соперника, вызванное оружием этого корабля (SHIP-10) |
-| **поражён** | состояние после попадания ряда видов оружия (WPN-10) |
-| **дроид-спасатель** | возвращает на трассу сорвавшийся корабль (PHY-22) |
-| **резиновая нить** | ограничение скорости лидеров для подтягивания отстающих (RACE-7) |
-| **perfect lap** | круг без касаний геометрии трассы (RACE-8) |
-| **челлендж** | одиночное задание команды с медалями (RACE-13) |
-| **медаль** | бронза / серебро / золото по трём порогам события; старшая включает младшие |
-| **лига** | серия до 8 событий с очками (RACE-10) |
-| **процент прохождения** | итоговая оценка профиля, 0–100 (RACE-17) |
-| **доп. отметки** | дополнительные флаги профиля, входящие в процент; смысл не установлен (OQ) |
-| **профиль** | сохранённый прогресс игрока (FMT-10, FMT-11) |
-| **супероружие** | оружие, закреплённое за командой (WPN-2) |
-| **открытое оружие** | оружие, разблокированное в профиле (FMT-10) |
+| **event** | the description of one race in `GAME.BNI`: type, track, laps, pilots, medal thresholds, weapons (FLOW-2, FMT-8) |
+| **progress** | `lap − debt + subsection_fraction`; places are sorted by it (RACE-2) |
+| **debt** | the number of backward start-line crossings not yet compensated (RACE-2) |
+| **current position** | the place by progress in this frame (RACE-5) |
+| **finish table** | the final places: filled in at the moment of finishing or elimination (FLOW-12) |
+| **out of the race** | the ship has finished or been eliminated; its result is fixed |
+| **destroyed** | the shield has reached 0; after 7.2 s the ship is eliminated (SHIP-9) |
+| **eliminated** | out of the race without a place: destroyed, removed from lava, etc. |
+| **kill** | destroying an opponent, caused by this ship's weapon (SHIP-10) |
+| **stricken** | the state after being hit by a number of weapon kinds (WPN-10) |
+| **rescue droid** | returns a ship that has fallen off the track to the track (PHY-22) |
+| **rubber band** | a speed limit on leaders to pull up the trailing ships (RACE-7) |
+| **perfect lap** | a lap without touching the track geometry (RACE-8) |
+| **challenge** | a single-player team task with medals (RACE-13) |
+| **medal** | bronze / silver / gold by the event's three thresholds; a higher one includes the lower ones |
+| **league** | a series of up to 8 events with points (RACE-10) |
+| **completion percentage** | the profile's overall score, 0–100 (RACE-17) |
+| **extra marks** | additional profile flags that count towards the percentage; their meaning is not established (OQ) |
+| **profile** | the player's saved progress (FMT-10, FMT-11) |
+| **super weapon** | a weapon tied to a team (WPN-2) |
+| **unlocked weapon** | a weapon unlocked in the profile (FMT-10) |

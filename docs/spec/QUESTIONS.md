@@ -1,10 +1,10 @@
-# Журнал вопросов чистой команды
+# Clean team question log
 
-Как задавать вопросы — `../process/README.md`, раздел 5. Коротко:
-- вопрос о **поведении** игры, а не о коде; ссылка на ID правила, если вопрос к нему;
-- ответ — это изменение спецификации (ID правила и номер выпуска) или перенос в `08_open_questions.md`;
-- строки не удаляются; статус меняется новой записью в колонке «ответ».
+How to ask questions — `../process/README.md`, section 5. In short:
+- a question about the **behaviour** of the game, not about code; a reference to the rule ID if the question is about one;
+- an answer is a change to the specification (rule ID and release number) or a move to `08_open_questions.md`;
+- rows are not deleted; the status is changed by a new entry in the "answer" column.
 
-| ID | дата | кто спросил | вопрос | статус | ответ (ID правил, выпуск) |
+| ID | date | asked by | question | status | answer (rule IDs, release) |
 |---|---|---|---|---|---|
-| Q-001 | | | | открыт | |
+| Q-001 | | | | open | |
