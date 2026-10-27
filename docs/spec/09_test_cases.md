@@ -14,7 +14,7 @@ The "source" column: **observation** — the number was seen in the game; **calc
 | TC-6 | PHY-21 | burning ship, `maxspeed` 1062, substeps | after 3 substeps ≈ 544; after 13 ≈ 58; then 50 | observation |
 | TC-7 | SHIP-9 | destroyed at `maxspeed` 1450, frames | after 60 frames (1.2 s) ≈ 0.40 of the original; 50 is reached at about frame 223 (~4.5 s); eliminated at frame 360 | observation + calculation |
 | TC-8 | WPN-10 | Rocket hit on a human, frames | speed multiplier: minimum 0.24 after 76 frames of decline, return to 1.0 after another 19 frames, ~1.9 s in total | observation |
-| TC-9 | WPN-12 | Gravity Bomb, shooter with `weapon_standard` 1.1; target hit at c = 41 | k = 0.82; damage 12.628 (−12.63 in the game); AG Stinger effect 102 frames; the target was at a distance of 100…134 from the blast (at the check at c = 45 it was not hit) | observation |
+| TC-9 | WPN-12 | Gravity Bomb, shooter with `weapon_standard` 1.1; target hit at c = 41 | k = 0.82; damage 12.628 (−12.63 in the game); AG Stinger effect lasting 102 frames; the target was at a distance of 100…134 from the blast (at the check at c = 45 it was not hit) | observation |
 | TC-10a | RACE-11, RACE-12 | league: player 14 + 14 + 10 = 38, best opponent 34 | win | observation |
 | TC-10b | RACE-11, RACE-12 | league: player eliminated (kills 0) → 0; 1st place + 1 kill → 14; eliminated with 1 kill → 2; total 16, leader has 26 | not a win | observation |
 | TC-11 | RACE-17 | Arcade: one 1st and one 2nd place (A = 5); 1 league win in 1–4 (L = 9 → Lp = 5); challenges: gold 3, silver 1, bronze 2 (C = 13); the rest 0 | percentage 5 | observation (save summary) + calculation |
@@ -38,9 +38,9 @@ The "source" column: **observation** — the number was seen in the game; **calc
 | TC-28 | PHY-24 | pit lane disabled in the event; shield 17.2 of 51 | on `piteffect` the shield does not change, no speed limit | observation |
 | TC-29 | AI-8 | level-2 pilot, shield 30 of 60 | `p = (100 − 50) × 0.8 = 40` % | calculation |
 | TC-30 | RACE-5 | two ships with equal progress in the same section, one 3 from the entry gate line, the other 7 | the second is ahead | calculation |
-| TC-31 | FLOW-6 | Arcade, AI at the 3rd start position (s = 2); level-1 AI at position 13 | boost 0.14; no boost, throttle released from T + 0.5 to T + 1.0 | calculation |
+| TC-31 | FLOW-6 | Arcade, AI at the 3rd start position (s = 2); level-1 AI at position 13 | burst 0.14; no burst, throttle released from T + 0.5 to T + 1.0 | calculation |
 | TC-32 | RACE-7 | the setting is the third value, the reference at progress 2.0, the ship at 2.5 | multiplier 0.85 | calculation |
 | TC-33 | SHIP-16 | single race; player levels 3, 1, 3, 3, −1, 4; the opponent has n = 5, 3, 5, 5, 3, 3 | opponent levels 3, 2, 3, 3, 2, 2 | observation |
 | TC-34 | RACE-22 | player's shield 2 notches (20 %), full ship shield 71; AI shield 7 notches (70 %), full 82 | at the start 14.2 and 57.4 | observation |
 | TC-35 | RACE-22, SHIP-16 | upgrade level 3 (q = 67); the ship has n = 5, 3, 5, 5, 3, 5 | levels 3, 2, 3, 3, 2, 3; class 3 | observation |
-| TC-36 | RACE-23 | a human's ship is destroyed, respawn on | after 8.2 s back in the race at the same place, shield full × percentage | observation |
+| TC-36 | RACE-23 | a human's ship is destroyed, resurrection on | after 8.2 s back in the race at the same place, shield full × percentage | observation |

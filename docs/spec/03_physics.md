@@ -3,11 +3,11 @@
 ## PHY-1. Time step [✓]
 Frame = 20 ms = **2 substeps of 0.01 s each**. Confirmed by a frame-by-frame recording: the ship's displacement per frame
 divided by `0.02·|v|` gives 0.9997 (median, ~25,000 frames, 6 tracks). The implementation must keep exactly 100 Hz:
-the "forces" below are an **impulse per substep**, not a force in newtons; with a different step the handling will change.
+the "forces" below are an **impulse per substep**, not a force in newtons; with a different substep length the handling will change.
 For a display with a different refresh rate: the simulation stays at 100 Hz, and rendering is interpolated between frames.
 
 A "by feel" reference for PAL is the player's impressions after races on both versions (GEN-7, "Races on both
-versions"): sliding handling, a heavy craft, entering a corner early, frequent airbrake use, hard walls.
+versions"): sliding handling, a heavy ship, entering a corner early, frequent airbrake use, hard walls.
 
 ## PHY-2. Ship state (minimum for physics)
 Position, velocity (vector), orientation (quaternion), live parameters (SHIP-4), part damage, shield, current
@@ -27,7 +27,7 @@ The order affects the result (especially the match with recordings), so it is fi
 10. Only in the **first** substep of a frame — collision with the track (PHY-13).
 11. Movement (PHY-14), speed magnitude and direction of motion (PHY-15).
 12. Orientation (PHY-16).
-13. Lap progress (RACE-2), triggers and surface types (PHY-17…PHY-24), weapon pickup (WPN-3).
+13. Lap progress (RACE-2), triggers and surface types (PHY-17…PHY-24), weapon pads (WPN-3).
 
 ## PHY-4. Effective maximum speed [code; the "stricken" multiplier — ✓]
 `maxspeed` (live) × pit lane limit (if the ship is on the pit lane, PHY-24) × "stricken" multiplier
@@ -85,7 +85,7 @@ damage and pit lane), km/h; `v_f` — projection of velocity onto the "forward" 
 - **Longitudinal drag** — only along the "forward" axis: `−k · v_f`, where `k = T / (V / 3.6)`. Therefore at any thrust
   the acceleration along the axis = `T · (1 − v_f / (V/3.6)) / m` and the speed tends to `V` by itself. When there is no thrust, `k` is computed
   from `M` and multiplied by **0.05** (while `s < V`) — when coasting the ship barely slows down. Above `V + 1` km/h on the ground `k`
-  is computed from `M` and multiplied by `frictionfactor` (0.9 for Xios lead) — excess speed (booster, downhill) dies off quickly.
+  is computed from `M` and multiplied by `frictionfactor` (0.9 for Xios lead) — excess speed (booster, downhill) decays quickly.
   Check: at 600–800 km/h Xios lead accelerates by ~350–380 km/h per second, and the calculation gives the same.
 - **Lateral friction** — along the "right" axis: `−D · v_r`, where `v_r` is the lateral velocity: `D = turndamping` (live, with
   damage), at `s < 100` — 10; with the airbrakes pressed — `braketurndamping`. Plus a weak force turning the
@@ -94,7 +94,7 @@ damage and pit lane), km/h; `v_f` — projection of velocity onto the "forward" 
 - Under the effect of AG Stinger the longitudinal drag is multiplied by `(1 − t/100)·10` (t — frames since the hit, WPN-14).
 - **Nose reaction to touching a surface** (parameters `ndmaxdegrees`, `ndturnforce`, SHIP-3): while the ship is in the air, the threshold is the value
   from the file (300 for all teams, 1 for the escape pod); on contact with a surface it is recomputed every frame from the angle between
-  the hull and the surface normal (below the threshold — zeroed). With an angle not below the threshold, an impulse of strength `ndturnforce`
+  the hull and the surface normal (below the threshold — zeroed). If the angle is at or above the threshold, an impulse of strength `ndturnforce`
   is applied to the pitch (1000 for the teams, 3000 for the zone ship, 1 for the escape pod) — after landing the ship "pecks" with its nose
   the harder, the larger `ndturnforce` and the steeper the impact. Landing after a flight additionally produces sparks and a sound depending on speed.
   Units of the recomputed angle — OQ-3; in-game check — the Florion 3F ramp and steps F1–F3.
@@ -106,7 +106,7 @@ damage and pit lane), km/h; `v_f` — projection of velocity onto the "forward" 
 On a booster trigger: `v += forward · |v| · k`, k = 0.03 for the human, 0.006 for the AI. Boosters are of two kinds
 (a flag in the booster object in the `.TRI`, FMT-25): **normal** (k as above) and **weak** — k = 0.008 **for both the human
 and the AI** [code]. Weak ones exist only on Florion Height (all 6 layouts) and Cubiss Float 3F, normal ones — on all tracks
-of the three examined [✓ data from 18 `.TRI`]. Boosters are polygon triggers, not the `speed` surface type (PHY-17).
+of the three examined [✓ data from 18 `.TRI`]. Boosters are polygon triggers, not `speed`-type surfaces (PHY-17).
 The addition applies **every substep** while the ship is on the booster: for the human the speed grows by 5–6 % per frame
 for several frames in a row (1.03² ≈ 1.061 minus ordinary drag) [✓ all 15 recordings].
 
@@ -198,9 +198,9 @@ only by falling off the track.
   - up to 0.6 s nothing happens;
   - from 0.6 s the ship **burns**: every substep the maximum speed (`maxspeed`) is multiplied by 0.8, but does not drop below 50; it crawls at ~175 km/h and cannot get out;
   - at 1.4 s — a commentator line and an on-screen message;
-  - **at 7.0 s the ship is removed from the race** ("dropped out"); the player gets last place, the race is over for them.
+  - **at 7.0 s the ship is removed from the race** ("eliminated"); the player gets last place, the race is over for them.
 - The counter is **not reset** on leaving the lava: it grows only on lava and accumulates between visits until the ship
-  is fully reset (restart, respawn). [code]
+  is fully reset (restart, resurrection). [code]
 
 ## PHY-22. Falling off the track, returning to the track [✓ video and recording, Time Trial Alca Vexus 2F, PAL; ✓ player observation; the rest — code]
 What it looks like for a player who has fallen off the track into the abyss [✓]:
@@ -250,7 +250,7 @@ Walls and barriers (the `wall` and `barrier` surfaces, PHY-17) are separate surf
   frames. A touch counts if a segment crosses a wall triangle, approaching it from the front side.
 - **Response.** The push-back direction is the **smoothed wall normal at the point of impact**: a blend of the normals of the three vertices
   of the triangle in proportion to the point's closeness to each. Along this direction the ship is pushed out by the part of the
-  segment that went past the wall; the velocity component into the wall is killed; the ship gets a turning kick; sound,
+  segment that went past the wall; the velocity component into the wall is removed; the ship gets a turning kick; sound,
   sparks at speed > 100, damage (SHIP-6), shake (GEN-8).
 - **Consequence for track data (FMT-3).** The wall vertex normals must point out of the wall, like its surface.
   Zero normals — no push-back, the ship passes through the wall; "up" normals (vertices shared with the road) —

@@ -28,10 +28,10 @@ A weapon is given to a ship that has driven over a weapon pad (PHY-19) if pads a
 eliminated ship the current weapon is lost and no new one is given).
 - What triggers it is **driving over the pad** (the area of effect), not touching its edge; after giving out a weapon the pad goes dark immediately
   [✓ player observation].
-- After a weapon is given out, the pad gives **no weapon to anyone for 0.5 s in the EU version (50 substeps) and 1 s in the US version**; the countdown runs
+- After a weapon is given out, the pad gives **no weapon to anyone for 0.5 s in the EU version (50 substeps) and 1 s in the US version** (the pad cooldown); the countdown runs
   in substeps and stands still during pause [code; GEN-7].
 - A ship that already has a weapon does not turn the pad off and does not receive a weapon [✓ player observation].
-- In Time Trial pads do not work; the turbo boost triggers on every crossing of the finish line
+- In Time Trial pads do not work; the Turbo burst triggers on every crossing of the finish line
   [✓ player observation].
 
 ## WPN-4. Candidates [code]
@@ -61,7 +61,7 @@ number (0…26), the weights are accumulated, and the first type at which the su
 
 ## WPN-6. Firing: what each type does [code; ✓ player observation]
 - Turbo, Autopilot — take effect immediately (WPN-16).
-- **Rockets** (3 pieces) — fired one after another along the ship's longitudinal axis, unguided, but following the track
+- **Rockets** (3 pieces) — fired one after another along the ship's longitudinal axis, without homing, but following the track
   geometry (WPN-21). Forward or backward — depending on "look back" (WPN-7) [✓ player observation].
 - **Missile** (1 piece) — homing: locks onto a target and follows it; the lock range is limited; the
   projectile follows the track geometry (WPN-21). Forward or backward — depending on "look back" [✓ player observation].
@@ -77,7 +77,7 @@ number (0…26), the weights are accumulated, and the first type at which the su
   beyond its bounds: a grenade that has flown out explodes or disappears [✓ player observation].
 - **Power Swarm** — team super weapon (WPN-2): releases a swarm of 1–5 drones that fly to the opponent's ship
   and gradually reduce its shield [✓ player observation].
-- **Proton Cannon** (25 charges) — a rapid-fire "machine gun": a burst forward, along the track geometry, without
+- **Proton Cannon** (25 charges) — a rapid-fire "machine gun": a salvo forward, along the track geometry, without
   homing; it does not fire backward (WPN-22) [✓ player observation].
 - Mines and Proton Cannon use up a stock; the other weapons disappear after firing.
 
@@ -105,7 +105,7 @@ Orbital Laser 30, Penetrator 25/15, Plasma Bolt 100, Seismic Field 30, Grenades 
 ## WPN-10. Hit effect [✓ frame-by-frame observations: 241 hits on AI, 10 on the player]
 For Rocket, Mines, Missile, Quake, Super Missiles, Orbital Laser, Penetrator, Seismic Field, Grenades,
 Hunter Missile, Global Drain:
-- **AI**: is marked "hit" for exactly **3.0 s**; this does not affect speed.
+- **AI**: is marked **stricken** for exactly **3.0 s**; this does not affect speed.
 - **Human**: a timer of 100 frames; while more than 25 frames remain until the end, the maximum-speed multiplier decreases
   by 0.01 per frame, then grows by 0.04 per frame; limits [0.1, 1]. In practice: a dip to **0.24** and back,
   **1.9 s** in total (TC-8). The multiplier enters into PHY-4.
@@ -187,9 +187,9 @@ Not established: whether the Quake wave passes over jumps where there is no trac
 The flight type of a particular weapon is given in the "what is described" column of the WPN-16 table.
 
 ## WPN-22. Proton Cannon [✓ player observation, PAL; numbers — ✓ modified game, PAL]
-A rapid-fire weapon of the game, the local "machine gun".
+A rapid-fire weapon of the game, the game's own "machine gun".
 - **On pickup, several charges — 25**; it fires until the stock runs out, then the weapon disappears (WPN-6).
-- **Fires fast**: shots come in a burst, not one per press. With the button held — **about 25 shots
+- **Fires fast**: shots come as a salvo, not one per press. With the button held — **about 25 shots
   per second** (typically an interval of 0.04 s), so a charge of 25 shots is used up in less than a second
   [✓ modified game, PAL; the weapon was given forcibly, 25 matches the stock at pickup according to the recording].
 - The projectiles fly **along the track geometry** (WPN-21), without homing.
@@ -230,18 +230,18 @@ Proton Cannon and mine delays; nearly all in `_Max` / `_Min` pairs. Keys and val
 ## WPN-16. What is known about each type [✓ player observation, where indicated]
 | weapon | what is described | what is missing (OQ-31) |
 |---|---|---|
-| Turbo | a boost | boost strength |
+| Turbo | a burst | burst strength |
 | Autopilot | AI drives | duration |
-| Rocket | 3 pieces in a row, forward/backward, unguided, follow the track geometry (WPN-6, WPN-21) | range and flight time |
+| Rocket | 3 pieces in a row, forward/backward, without homing, follow the track geometry (WPN-6, WPN-21) | range and flight time |
 | Missile | homing with limited lock range, follows the track geometry (WPN-6, WPN-21) | flight time, conditions for losing the lock |
 | Super Missiles | up to 3 targets; with one target all three go for it; follow the track geometry (WPN-6, WPN-21) | flight time, order of target selection |
 | Mines | 5 pieces, laid at the ship's position, do not depend on "look back", detonation is the same on the player and bots (WPN-6) | lifetime, detonation radius |
 | Quake | the wave follows the track geometry, forward/backward, deforms the mesh, sparks at the edges (WPN-13) | passing over jumps, wave speed, damage by distance |
 | Power Swarm | a swarm of 1–5 drones to the opponent, gradually reduces the shield (WPN-6) | rate of reduction, drone lifetime, what happens with several targets |
 | Gravity Bomb, AG Stinger | fully | — |
-| Plasma Bolt | one charge on pickup; charge-up 1–2 s; unguided beam without splash, follows the track geometry, lethal on hit (WPN-11, WPN-21) | exact charge-up, range, firing backward |
+| Plasma Bolt | one charge on pickup; charge-up 1–2 s; a beam without homing and without splash, follows the track geometry, lethal on hit (WPN-11, WPN-21) | exact charge-up, range, firing backward |
 | Penetrator | acceleration and a ram on the nose (WPN-18) | ram damage, effect on opponents |
-| Proton Cannon | 25 charges, rapid burst, forward, along the track geometry, unguided; low damage, strongly upsets stability (WPN-22) | rate, range, damage per shot |
+| Proton Cannon | 25 charges, rapid salvo, forward, along the track geometry, without homing; low damage, strongly upsets stability (WPN-22) | rate, range, damage per shot |
 | Orbital Laser, Seismic Field | damage, effect | hit geometry |
 | Grenades | 3 pieces in a fan, forward/backward by "look back"; fly on a free trajectory, can fly outside the track and explode or disappear there (WPN-6, WPN-21) | fan geometry, explosion radius |
 | Flamer | flamethrower: short range, low damage, free trajectory of the jet, "on fire" effect without damage over time (WPN-20, WPN-21) | range, fuel consumption, firing backward |

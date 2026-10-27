@@ -254,7 +254,7 @@ packet, `+0x14` pixels, `+0x18` palette upload packet, `+0x1C` palette.
     (like RGB backlighting): fast enough that neighbouring pads are of different colours, and slow enough that
     the change is not noticeable before your eyes — the player sees "patches of different colours" (the shift is fast enough); the exact
     period does not matter;
-  - **after pickup** the pad immediately turns **black**, with no animation; it lights up again also without animation
+  - **after pickup** the pad immediately turns **black** without animation; it also lights up again without animation
     [✓ player observation, PAL, 4 laps]; in modes where the pads are disabled,
     they are present on the track but are also black;
   - a **booster** glows steadily, blue; the player judges its strength by the length of the blue stripe, not by the number of arrows;

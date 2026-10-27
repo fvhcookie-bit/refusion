@@ -12,6 +12,6 @@ English version: [README.md](README.md)
 | папка | что внутри |
 |---|---|
 | [`docs/ru/spec/`](docs/ru/spec/README.md) | спецификация поведения: правила с ID, метки доказанности, открытые вопросы, журнал изменений |
-| [`docs/ru/process/`](docs/ru/process/README.md) | протокол «чистой комнаты», чек-лист проверки, `check_spec.py` |
+| [`docs/ru/process/`](docs/ru/process/README.md) | протокол «чистой комнаты», чек-лист проверки (скрипт `check_spec.py` общий и лежит только в `docs/process/`) |
 
 Проверка спецификации на загрязнение: `python docs/process/check_spec.py`.

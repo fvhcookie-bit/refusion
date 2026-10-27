@@ -40,7 +40,7 @@ t — time by the race clock, s.
 
 | moment | what happens |
 |---|---|
-| 0 | board shows "HOLD"; in Time Trial an immediate jump to the row "t > T − 0.1" |
+| 0 | the countdown board shows "HOLD"; in Time Trial an immediate jump to the row "t > T − 0.1" |
 | t > 1.0 | commentator line |
 | t > T − 0.1 | a human who is **already holding the throttle** **stalls** |
 | immediately after | line, board "GO" |
@@ -49,7 +49,7 @@ t — time by the race clock, s.
 | t > T + 1.0 | stalled ships can accelerate again |
 
 Bursts at the moment of the start:
-- AI in Arcade [code; B = 0 — ✓ recording of 69 races; burst falling off by position — ✓ start recording]. Grid position s = 0…15
+- AI in Arcade [code; B = 0 — ✓ recording of 69 races; burst decreasing with grid position — ✓ start recording]. Grid position s = 0…15
   (0 — the first row). If `16 − s ≥ 5` (positions 0…11): burst `0.01·(16 − s)` (from 0.16 to 0.05). For the last four positions
   (12…15) — by the pilot's skill level (AI-4): levels 2 and 3 — burst 0.2; level 1 — no burst, and the ship **stalls**
   (throttle is dropped from T + 0.5 to T + 1.0). The formula also has a pilot term B, but it is always 0.
@@ -88,12 +88,12 @@ A ship finishes when it completes lap `number_of_laps + 1` (the lap counter exce
   out of the race and drives on autopilot.
 - The current position (RACE-5) continues to be recomputed after the finish too; only the finish table is used for results.
   [✓: the player finished 2nd, 4 s later the current position showed 3]
-- **When the race is over for the humans** (all human ships have finished or dropped out), the remaining ships are given places
+- **When the race is over for the humans** (all human ships have finished or been eliminated), the remaining ships are given places
   **immediately, in a single frame**, in the order of current positions (RACE-5): the next free number goes to each ship still driving,
   if it is alive and **not destroyed by another's weapon** (SHIP-10); destroyed ones — including those still burning — and
-  all others without a place get "dropped out". [✓ modified game, US (the order of places does not depend on frame rate): player 4th → 9 ships still driving got 5…13 in order of positions, in
-  the same frame; a ship being destroyed — "dropped out"]
-- A ship that drops out is marked "dropped out" in the finish table and gets no place.
+  all others without a place get "eliminated". [✓ modified game, US (the order of places does not depend on frame rate): player 4th → 9 ships still driving got 5…13 in order of positions, in
+  the same frame; a ship being destroyed — "eliminated"]
+- An eliminated ship is marked "eliminated" in the finish table and gets no place.
 
 ## FLOW-13. Demo races [✓ 13 demos]
 If the menu is left untouched for a long time, the game shows a demo: an ordinary Arcade race, but the "player's" ship is on autopilot

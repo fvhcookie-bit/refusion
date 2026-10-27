@@ -67,3 +67,60 @@ Terms used in the specification. English words are data file keys or on-screen g
 | **profile** | the player's saved progress (FMT-10, FMT-11) |
 | **super weapon** | a weapon tied to a team (WPN-2) |
 | **unlocked weapon** | a weapon unlocked in the profile (FMT-10) |
+
+## Terminology (RU ↔ EN)
+
+| English | Russian | Notes / do not use |
+|---|---|---|
+| **shield** | щит | Plural only for the per-player setting. Not: armour, energy, health. |
+| **hull** | корпус | The ship's body; its damage is tracked through components. Not: body, chassis. |
+| **component** | узел | Engine, nose, stabilizers, airbrakes (SHIP-7). Not: node, unit, module. |
+| **model node** | узел (дерева модели) | An element of the model tree (FMT-17, FMT-23). Use "node" only in this sense. The Russian uses one word for both senses. |
+| **part / part group** | деталь / группа деталей | A piece of a ship model (SHIP-15, FMT-22); not a component. |
+| **lap progress** | доля круга | A number 0…1 per subsection. Not: lap fraction. |
+| **progress** | прогресс | `lap − debt + subsection_fraction`, measured in laps (RACE-2). |
+| **current position / place** | текущая позиция / место | Current position is recomputed each frame; place is the one in the finish table. Not: placement of positions. |
+| **airbrake** | аэротормоз | Not: air brake. |
+| **pit lane** | пит-лейн | Always the lane; never "the pit", never "the recharge" as a place. |
+| **recharge** | подзарядка | Shield recharge on the pit lane (PHY-24). Not: refill. "Restored" only in RACE-23. |
+| **starting grid / grid position** | стартовая решётка / место на старте | Not: start grid, grid alone. |
+| **booster** | ускоритель | A polygon trigger that accelerates the ship (PHY-11). Not: booster pad, boost pad, speed pad, accelerator. |
+| **burst** | рывок | An instant start or Turbo acceleration (FLOW-6, WPN-6); the Russian does not distinguish the two, so neither does the English. Not: boost, turbo boost, start boost. A volley of shots is "salvo" (Russian «очередь»), never "burst". |
+| **Turbo** | Turbo | The weapon name (capitalised, as on screen). |
+| **weapon pad** | оружейная площадка | The trigger (WPN-3); "pad" alone only when the context is clear. Not: weapon pickup (as a trigger), weapon box. |
+| **pickup** | подбор | The act of receiving a weapon; never the trigger. |
+| **pad cooldown** | кулдаун площадки | The time after a weapon is given during which the pad gives nothing (WPN-3). Not: reload. |
+| **reload** | перезарядка | The weapon's own shot interval; not the pad. |
+| **canopy** | фонарь | Two different parts of the ship model; do not merge or swap them. |
+| **cockpit** | кабина | See canopy. |
+| **hit effect** | эффект попадания | Title of WPN-10 only; the state it sets is "stricken". |
+| **stricken** | поражён | The state set by the hit effect. Not: hit, marked hit, affected. |
+| **jump ramp** | трамплин | No synonyms. |
+| **destroyed** | уничтожен | Shield reached 0 (SHIP-9). Not: killed, wrecked. |
+| **eliminated** | выбыл | Out of the race without a place. Also the finish-table caption. Not: dropped out. |
+| **out of the race** | вне гонки | Finished or eliminated. |
+| **kill** | убийство | Only the SHIP-10 meaning. A velocity component is "removed", never "killed". |
+| **Eliminator / Elimination** | Eliminator / Elimination | Game-mode name / challenge-type name, as written on the game's screens. Not a general word for ship elimination. |
+| **surface** | покрытие | The type of a track polygon (PHY-17); a particular value is a "surface type". |
+| **surface subtype** | подтип покрытия | PHY-18. |
+| **section / subsection** | секция / подсекция | Track geometry from `.TRK`. |
+| **segment** | отрезок | The line from the ship's centre in PHY-25; not a subsection. |
+| **gate** | ворота | Entry/exit gate of a section. |
+| **frame / substep** | кадр / подшаг | Not: tick. |
+| **per-substep impulse** | импульс за подшаг | The "force" of the formulas, in gfu. |
+| **slot** | слот | `team·2 + pilot` (SHIP-2). |
+| **pilot** | пилот | Not: driver. |
+| **ship** | корабль | Not: vehicle, car; "craft" only inside the rescue droid description. |
+| **effective maximum speed** | эффективная максимальная скорость | `maxspeed` with all multipliers (PHY-4). "Maximum speed" is the base `maxspeed`; "top speed" is the stat on the ship screen (Russian «высшая скорость»); the Russian source uses both on purpose. |
+| **live parameters** | живые параметры | A copy of the parameters for the race. |
+| **upgrade** | апгрейд | Not: tuning. |
+| **profile** | профиль | The saved progress as a whole; "save" is only the memory-card file. |
+| **rescue droid** | дроид-спасатель | "droid" after the first use. |
+| **return point** | точка возврата | Where a fallen ship is put back on the track (PHY-22). Not: respawn. |
+| **resurrection** | воскрешение | The RACE-23 setting and event. Not: respawn, revival, возрождение. |
+| **restart** | рестарт | The reset of a race (FLOW-4). |
+| **rubber band** | резиновая нить | The mechanism. Its settings-screen label is "catch-up" ("the catch-up setting"). |
+| **perfect lap** | perfect lap | Screen label, kept in English. |
+| **homing** | наведение | A projectile that follows a target; the opposite is "without homing" («без наведения»). Not: unguided, guided, самонаведение. "Lock" is only the target lock («захват»). |
+| **input** | ввод | Gamepad actions and axes. External motion control is «управление извне». |
+| **shot / charge** | выстрел / заряд | A charge is one unit of a weapon's stock. |

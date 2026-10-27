@@ -33,7 +33,7 @@ again = 140 frames; in Zone, **1 unit of shield** is also taken away (or the rem
 the first loss comes after 0.4 s, then every 2.8 s. [code]
 
 ## RACE-7. Rubber band [code; "off by default" and the menu labels — ✓]
-The **catch-up** setting has three values — **off / low / high** [✓ settings screen, PAL] — and is set **in the two-player mode menu** (on the same screen as the players' shield handicap and the number
+The **catch-up** setting (rubber band, RACE-7) has three values — **off / low / high** [✓ settings screen, PAL] — and is set **in the two-player mode menu** (on the same screen as the players' shield handicap and the number
 of opponents); by default it is **off**. For each ship:
 `multiplier = clamp(1 − (progress − reference_progress)·k, 0.5, 1)`, k = **0.1** for low and **0.3** for
 high (in menu order of the values). **The reference is the first player's ship.** The multiplier limits the maximum speed (PHY-4), that is,
@@ -78,7 +78,7 @@ a higher medal includes the lower ones. Medals are written to the profile (FMT-1
 | 2 **Elimination** | number of opponents destroyed **by the player** ≥ threshold; the medal is awarded **at the moment** of the kill, in the middle of the race; elimination without a culprit does not count | 1 / 2 / 3 | [✓] |
 | 3 **duel** | 2 ships, 1 lap, weapon pads switched off, player's shield 9; gold only — for 1st place | — / — / 1 | [✓] |
 | 4 survival | laps completed = threshold | 1 / 2 / 3 | [code] |
-| 5 special | bots do not pick up weapons, the player does once; at the start the second ship gets a boost | | [code] |
+| 5 special | bots do not pick up weapons, the player does once; at the start the second ship gets a burst | | [code] |
 
 ## RACE-15. Time Trial [code]
 Medal thresholds are in seconds, in Arcade events (FLOW-2). **Ghost** [code]:
@@ -122,7 +122,7 @@ A survival challenge on one lap of a track. Behaviour according to player observ
 - there is no shrinking zone: the ship moves along the track until it is **destroyed by repeated wall
   touches** — each touch takes away shield, and after several the ship is destroyed;
 - as the level rises, the ship's **maximum speed grows**;
-- **booster** pads on the track are active; weapon pads are inactive: **no weapon is given, the pit lane does not
+- **boosters** on the track are active; weapon pads are inactive: **no weapon is given, the pit lane does not
   work**.
 From the code only the points scoring is known: a multiplier up to ×99, bonuses for boosters and laps; the growth of thrust, brakes,
 turning and `gravityflying` with level is also code. [code]
@@ -136,7 +136,7 @@ The exact scoring numbers — OQ-25.
   the Proton Cannon from a separate supply (WPN-8). Rules — OQ-25.
 
 ## RACE-21. Elimination of ships a lap behind [✓ Arcade; league — code]
-When, during the placement of positions (RACE-5), the progress of two adjacent ships differs by **more than 1** (one lap),
+When positions are assigned (RACE-5), the progress of two adjacent ships differs by **more than 1** (more than one lap),
 the one behind is **eliminated**: its shield becomes 0 and it is removed from the race in the same way as those eliminated at the end of a race (FLOW-12).
 Does not apply: on devilia, in two-player modes, to ships already eliminated or finished.
 For the player this looks like an ordinary destruction: shield 0, the caption "shield energy critical", the animation (SHIP-9);
@@ -160,14 +160,14 @@ The two-player mode settings screen sets:
 
 - The highest available upgrade level = the version (SHIP-14) of the most upgraded ship in the profile: upgrade share
   < 25 → 1 (and the row is skipped by the cursor), < 50 → 2, < 75 → 3, otherwise 4.
-- Values are saved in the profile. Defaults: 3 laps, shields 100 %, 6 opponents, level 1, pit lane on,
+- Values are saved in the profile. Defaults: 3 laps, shield 100 %, 6 opponents, level 1, pit lane on,
   resurrection on, rubber band off.
 - Weapon pads are always on in two-player.
 
 ## RACE-23. Resurrection [code; ✓ 26 resurrections in a row in a recording]
 Only in two-player modes and only for **human ships**, if enabled (RACE-22):
 - a destroyed ship (SHIP-9) is not eliminated; **8.2 s** after destruction it is restored **in the
-  same place**: shield = full × the percentage of that player's shield, node damage reset, destruction stages cleared;
+  same place**: shield = full × the percentage of that player's shield, component damage reset, destruction stages cleared;
 - if resurrection is off — it is eliminated, as in single-player modes (after 7.2 s).
 When destroyed, the AI additionally gets a throttle lockout that is never lifted (it is not needed, since the AI is eliminated).
 

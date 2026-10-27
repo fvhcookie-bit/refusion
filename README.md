@@ -13,6 +13,6 @@ The project is not affiliated with the rights holders of the game; the names bel
 |---|---|
 | [`docs/spec/`](docs/spec/README.md) | behaviour specification: rules with IDs, evidence labels, open questions, change log |
 | [`docs/process/`](docs/process/README.md) | clean-room protocol, review checklist, `check_spec.py` |
-| `docs/ru/` | Russian version of the same documents |
+| `docs/ru/` | Russian version of the documents in `docs/spec/` and `docs/process/` (the script `check_spec.py` is shared and lives only in `docs/process/`) |
 
 Checking the specification for contamination: `python docs/process/check_spec.py`.

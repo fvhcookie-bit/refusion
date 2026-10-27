@@ -83,7 +83,7 @@ observations made on the US version correctly.
 - **Impulses per substep were not recalculated** (thrust, suspension, sliding off slopes — the same formulas and the same ship
   parameters, PHY-10): therefore acceleration, stiffness and suspension damping per second in the US version are **about 1.2 times
   larger**. Maximum speed is the same. [✓ measurement: the same ship without upgrades, Time Trial, throttle from
-  standstill, both versions — acceleration 300→800 km/h in US is faster by 1.15–1.3 times (1.2 on average); the start boost gives the same
+  standstill, both versions — acceleration 300→800 km/h in US is faster by 1.15–1.3 times (1.2 on average); the start burst gives the same
   speed per frame, that is in US it is shorter in time]
 - Physics, AI and pilot mood timers were recalculated for 60 Hz (some exactly ×5/6, some ×0.83). The **movement
   speed** of some weapon effects per frame was reduced ×0.8 (for Flamer, Grenades, Plasma Bolt — ×5/6), so
@@ -115,7 +115,7 @@ observations made on the US version correctly.
   - **Walls and brakes.** A bounce off a wall in US costs less speed (on 4 of 4 tracks where bounces occurred in both
     versions, by ~25 % on average); the player held airbrakes for 15–26 % of race time in PAL, 11–19 % in US (on two
     tracks the same).
-  - **Player impression.** PAL — "sliding" handling, the feel of a heavy craft; you have to enter a corner
+  - **Player impression.** PAL — "sliding" handling, the feel of a heavy ship; you have to enter a corner
     early, difficult combinations (for example on Mandrashee) require technique and almost constant airbrakes; in
     tight places the ship can "bounce" between walls, walls throw it back harder and take more speed. US — the nose
     obeys better, corner entry is more predictable, brakes are needed mainly to throw the ship into a corner more sharply;

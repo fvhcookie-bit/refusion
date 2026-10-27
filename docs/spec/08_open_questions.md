@@ -17,7 +17,7 @@ The "how to close" column: **observation** — a recording of the game is needed
 | OQ-6 | Collisions with the track and with other ships: push-out, bounce, wall damage. **Wall hit — the mechanics are worked out (PHY-25)**; remaining: the strength of the bounce and of the turning push in numbers, ship-to-ship collisions | PHY-13, PHY-25, SHIP-6 | analysis + observation |
 | OQ-7 | Intermediate destruction stages (+1.2, +2.4, +4.4 s): what changes besides effects | SHIP-9 | analysis |
 | OQ-8 | ~~How triggers are defined in the data; which booster is "special"~~ — **closed**: PHY-19 (`.TRI` objects), PHY-11 (weak boosters k = 0.008) | PHY-11, PHY-19 | — |
-| OQ-9 | ~~Return to the track and the rescue droid~~ — **closed**: PHY-22 (the return point is the nearest in a straight line among the section points), SHIP-9 (the droid on destruction); attraction to a ship (Bio Snare?) moved to OQ-31 | PHY-12, PHY-22 | — |
+| OQ-9 | ~~Return to the track and the rescue droid~~ — **closed**: PHY-22 (the return point is the section point nearest in a straight line), SHIP-9 (the droid on destruction); attraction to a ship (Bio Snare?) moved to OQ-31 | PHY-12, PHY-22 | — |
 | OQ-10 | ~~The damping table: does it index the surface type or subtype~~ — **closed**: subtype, PHY-18 | PHY-18 | — |
 | OQ-14 | ~~Lava: is the counter reset on leaving the lava~~ — **closed**: PHY-21 (by code) | PHY-21 | observation for checking |
 | OQ-17 | ~~Pit lane: the speed limit value, the shield recharge rate~~ — **closed**: PHY-24, AI-8 | PHY-24 | — |
@@ -25,7 +25,7 @@ The "how to close" column: **observation** — a recording of the game is needed
 ## Race flow and rules
 | ID | question | affects | how to close |
 |---|---|---|---|
-| OQ-11 | ~~The AI start boost: where B and the AI start mode come from~~ — **closed**: FLOW-6 | FLOW-6 | — |
+| OQ-11 | ~~The AI start burst: where B and the AI start mode come from~~ — **closed**: FLOW-6 | FLOW-6 | — |
 | OQ-15 | League Challenge: the event number `42 + league` coincides with the Arcade devilia events (42, 44, 46) — a formula error or intended | FLOW-2 | analysis |
 | OQ-16 | ~~How positions are assigned to ships that did not reach the finish after the player finishes~~ — **closed**: FLOW-12 | FLOW-12 | — |
 | OQ-18 | ~~The order of positions at equal progress~~ — **closed**: RACE-5 | RACE-5 | — |
@@ -46,7 +46,7 @@ The "how to close" column: **observation** — a recording of the game is needed
 | OQ-13 | Where the "mass" number on the ship screen comes from (the upgrade screen — SHIP-5; credits for a race — RACE-24) | SHIP-5 | analysis |
 | OQ-26 | AI: the influence of the steering coefficients, concentration/smoothness, the changes on the 3rd lap, two rare AI states | AI-2, AI-4, AI-6 | analysis |
 | OQ-27 | ~~The `.TRI` and `C*.TRI` format~~ — the file format is described in FMT-25 and FMT-24; remaining: the link between `.TRI` objects and `.SPL` lines, the meaning of the patch fields and of link kind 1, of object types 5 and 10, the object mask; how the AI uses the line boundaries | AI-3, FMT-2 | analysis |
-| OQ-28 | ~~Pickup conditions and the pad check mode~~ — closed: an active pad gives a weapon to a suitable ship; after giving it goes out at once, gives to nobody until the cooldown ends and does not recover during pause. If the ship is already armed, the pad does not go out. See WPN-3, WPN-8. | WPN-3, WPN-8 | observation |
+| OQ-28 | ~~Pickup conditions and the pad check mode~~ — closed: an active pad gives a weapon to a suitable ship; after giving it goes out at once, gives to nobody until the pad cooldown ends and does not recover during pause. If the ship is already armed, the pad does not go out. See WPN-3, WPN-8. | WPN-3, WPN-8 | observation |
 | OQ-29 | ~~Instance limits; the Time Trial set; mapping a random number to weights~~ — **closed**: WPN-4, WPN-5 (by code). Behavioural questions remain: which factors change the result of choosing among permitted weapons, including a possible difference between the player and bots, the influence of the position/order of pads and the conditions for repeating one kind; for Time Trial — the behaviour of the boost being given at the finish. | WPN-4, WPN-5 | analysis + observation |
 | OQ-30 | ~~The choice between `_Max` and `_Min`~~ — **closed by code**: the pressure of the fire button, WPN-9; check in the game with a pressure-sensitive gamepad | WPN-9 | observation |
 | OQ-31 | Weapon behaviour: rockets, Missile, Super Missiles, Grenades, Mines, Quake, Power Swarm, Plasma Bolt (WPN-11), Flamer (WPN-20), Proton Cannon (WPN-22) and Shield (WPN-23) are described by the game; projectile flight kinds — WPN-21. The behaviour of Shield Drain, Bio Snare, Shield Raider, Turbo Enforcer, Stealth, Global Drain and Control Jammer is closed by **tests on the modified game (TC) and observation**, damage and numeric parameters — **from the game data** (`WEAPONSTATS.INI`, FMT-5). Remaining: the flight time of rockets, mines and Missile, the speed of the Quake wave and damage by distance, whether the Quake wave passes jump ramps, the numbers for Power Swarm drones, the exact charging of Plasma Bolt, Flamer's backward shot, Proton Cannon's range and damage by stability, the effect of its hits on speed and line of movement (no confirmation in a recording; pace and shield damage — WPN-22), the duration of Shield; **Penetrator (WPN-18) — ram damage**; Bio Snare: attraction; Gravity Bomb against a target with a protective item; which weapon gives an effect that is passed on by touch and removed by the pit lane (PHY-24) | WPN-6, WPN-10…WPN-23, PHY-24, FMT-5 | in-game tests + game data |
@@ -71,7 +71,7 @@ The "how to close" column: **observation** — a recording of the game is needed
 |---|---|---|---|
 | OQ-47 | ~~The source of the shake on Cubiss Float 2R~~ — **closed**: falling ice blocks, GEN-8 | GEN-8 | — |
 | OQ-48 | ~~Shake: are the numbers at the sources strength or duration~~ — **closed**: GEN-8 | GEN-8 | — |
-| OQ-50 | ~~Clarify the recordings: the repair queue; 72 touches at shield 71~~ — **closed**: SHIP-7 (the less damaged node is repaired earlier), SHIP-6 (destruction at shield < 0.9 after a hit; no fractional part on screen), SHIP-15 (20 touches took off less than 1) | SHIP-6, SHIP-7, SHIP-15 | — |
+| OQ-50 | ~~Clarify the recordings: the repair queue; 72 touches at shield 71~~ — **closed**: SHIP-7 (the less damaged component is repaired earlier), SHIP-6 (destruction at shield < 0.9 after a hit; no fractional part on screen), SHIP-15 (20 touches took off less than 1) | SHIP-6, SHIP-7, SHIP-15 | — |
 | OQ-49 | ~~Frame rate drop on the medal caption~~ — **withdrawn**: does not relate to game behaviour (project decision, 2026-10-21) | — | — |
 
 ## Game versions

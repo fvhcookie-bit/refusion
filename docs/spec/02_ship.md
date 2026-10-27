@@ -28,7 +28,7 @@ Sections `[<team> lead]` / `[<team> second]` for the 16 ships, plus `[zone ship]
 | other | `frictionfactor` | drag multiplier for movement above the maximum speed (0.70–0.90) [code] |
 | other | `collisionTiming` | frame counter after a collision, decreases by 1 per frame; who sets it — OQ-3 [code/guess] |
 | other | `ndmass` | does not affect physics (only copied; 100 for all) [code] |
-| other | `ndmaxdegrees` | threshold/magnitude of the nose reaction on touching a surface; on a touch it is recomputed every frame from the angle between the hull and the surface normal, the value from the file applies only until the first touch [code/partly guess] |
+| other | `ndmaxdegrees` | threshold (magnitude) of the nose reaction on touching a surface; on a touch it is recomputed every frame from the angle between the hull and the surface normal, the value from the file applies only until the first touch [code/partly guess] |
 | other | `ndturnforce` | strength of the pitch impulse when landing on / hitting a surface at an angle (1000 for all teams, zone ship 3000, escape pod 1) [code] |
 | shield | `shield_standard` | shield capacity [✓] |
 | weapon | `weapon_standard` | **this ship's weapon damage multiplier** [✓] |
@@ -106,15 +106,15 @@ Different ships have different `k` (for example, thrust 0.6…0.9, turning 0.6�
 
 **Hull durability.** The four main hull zones have individual durability shares; in each model's data these shares add up to 100 %. A higher share corresponds to a zone's greater resistance to accumulating damage. The total shield capacity is set separately; the exact relation of the shares to the number of hits has not been established. [code; PAL data; not verified by behaviour]
 
-**Repair.** On a pit lane with recharge (PHY-24) damage decreases at the same time as the shield grows, and the parameters
+**Repair.** On a recharging pit lane (PHY-24) damage decreases as the shield grows, and the parameters
 return along with it. The repair rate is 0.7 damage per second (PAL), i.e. from a fully wrecked
 state ≈1.4 s [code; ✓ league recordings PAL: 1.0 → 0 in 1.44 s, twice]. In US it is 1.2 times faster, like other per-substep
 quantities (GEN-7): 1.0 → 0 in 1.20 s [✓ league recordings US, twice]. (The earlier "1.9 s" was a counting error: it included the
 tail of the shield recharge after the repair had ended.) Visible hull damage on the pit lane also disappears [✓ player observation, PAL]: a component's part looks intact again
 only when the component is repaired **completely**. All components are repaired simultaneously and at the same rate, so the less wrecked
 ones become "whole" earlier: in the recording the stabilizers (0.65) after ~0.9 s of recharge, the nose (1.0) after ~1.3–1.4 s, the engines according to
-how wrecked they themselves were [✓ recording]; the canopy and cockpit (they have no component) — **immediately** on entering the recharge [✓ recording, three entries to the
-pit lane]. While a component is being repaired, its damage is distributed equally among its parts.
+how wrecked they themselves were [✓ recording]; the canopy and cockpit (they have no component) — **immediately** on entering the pit lane [✓ recording, three entries to the
+pit lane]. While a component is being repaired, its remaining damage is spread evenly over its parts.
 Without a pit lane damage only accumulates: in Time Trial (the pit lane is enabled there, but the player did not enter it) the ship
 crashed against the walls until destroyed on lap 10 of Mandrashee 2R [✓ player observation, PAL].
 
@@ -140,10 +140,10 @@ that damage affects handling — the observation confirms this.
 1. Shield = 0 → the ship is **destroyed**: every frame the maximum speed (`maxspeed`) is multiplied by 0.985 but does not drop
    below 50 (from ~1450 the minimum is reached in about 4.5 s, TC-7); both airbrakes are forcibly clamped.
 2. Intermediate stages at +1.2, +2.4, and +4.4 s from destruction (what changes besides effects — OQ-7).
-3. After **7.2 s** (360 frames) — **out of the race**, "eliminated" in the finish table. In two-player modes with respawn
+3. After **7.2 s** (360 frames) — **out of the race**, "eliminated" in the finish table. In two-player modes with resurrection
    the human's ship is instead restored after 8.2 s (RACE-23).
 
-What it looks like to the player [✓ player observation, PAL, Time Trial; the second case — the ship was destroyed by force in the open: ✓ modified game, PAL]:
+What it looks like to the player [✓ player observation, PAL, Time Trial; the second case — the ship was forcibly destroyed in an open place: ✓ modified game, PAL]:
 - on the last divisions of the shield — the text "shield energy critical";
 - **0 s** (shield 0): sparks and debris fly from the ship, it smokes and burns, crawls with decaying speed, controls
   have no effect;
