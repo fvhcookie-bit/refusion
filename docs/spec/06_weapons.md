@@ -31,7 +31,7 @@ eliminated ship the current weapon is lost and no new one is given).
 - After a weapon is given out, the pad gives **no weapon to anyone for 0.5 s in the EU version (50 substeps) and 1 s in the US version** (the pad cooldown); the countdown runs
   in substeps and stands still during pause [code; GEN-7].
 - A ship that already has a weapon does not turn the pad off and does not receive a weapon [✓ player observation].
-- In Time Trial pads do not work; the Turbo burst triggers on every crossing of the finish line
+- In Time Trial pads do not work; the Turbo weapon is given to the ship on every crossing of the finish line
   [✓ player observation].
 
 ## WPN-4. Candidates [code]
