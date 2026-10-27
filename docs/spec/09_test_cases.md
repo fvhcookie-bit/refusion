@@ -44,3 +44,6 @@ The "source" column: **observation** — the number was seen in the game; **calc
 | TC-34 | RACE-22 | player's shield 2 notches (20 %), full ship shield 71; AI shield 7 notches (70 %), full 82 | at the start 14.2 and 57.4 | observation |
 | TC-35 | RACE-22, SHIP-16 | upgrade level 3 (q = 67); the ship has n = 5, 3, 5, 5, 3, 5 | levels 3, 2, 3, 3, 2, 3; class 3 | observation |
 | TC-36 | RACE-23 | a human's ship is destroyed, resurrection on | after 8.2 s back in the race at the same place, shield full × percentage | observation |
+| TC-37 | PHY-8 | a ship without upgrades, Time Trial, standing start, full throttle, no steering | time to 100 / 300 / 500 / 800 / 930 km/h: 0.5 / 1.8 / 2.6 / 4.1 / 7.0 s (±0.1) | observation |
+| TC-38 | PHY-9 | same, release the throttle at 930 km/h, do not brake | exponential decay, `k` = 0.0763 /s: 934 → 622 km/h in ≈ 5.3 s | observation |
+| TC-39 | PHY-9 | a straight, no brakes, a short steering input | the lateral velocity decays with `D` = 54.7 ± 0.3 at any speed from 30 to 1048 km/h | observation |

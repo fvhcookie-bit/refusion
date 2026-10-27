@@ -230,7 +230,7 @@ Proton Cannon and mine delays; nearly all in `_Max` / `_Min` pairs. Keys and val
 ## WPN-16. What is known about each type [✓ player observation, where indicated]
 | weapon | what is described | what is missing (OQ-31) |
 |---|---|---|
-| Turbo | a burst | burst strength |
+| Turbo | a burst (like a track booster but stronger; decays to the ordinary speed in about 6 s) [✓ player observation, PAL] | burst strength |
 | Autopilot | AI drives | duration |
 | Rocket | 3 pieces in a row, forward/backward, without homing, follow the track geometry (WPN-6, WPN-21) | range and flight time |
 | Missile | homing with limited lock range, follows the track geometry (WPN-6, WPN-21) | flight time, conditions for losing the lock |

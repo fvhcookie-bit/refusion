@@ -88,9 +88,17 @@ damage and pit lane), km/h; `v_f` — projection of velocity onto the "forward" 
   is computed from `M` and multiplied by `frictionfactor` (0.9 for Xios lead) — excess speed (booster, downhill) decays quickly.
   Check: at 600–800 km/h Xios lead accelerates by ~350–380 km/h per second, and the calculation gives the same.
 - **Lateral friction** — along the "right" axis: `−D · v_r`, where `v_r` is the lateral velocity: `D = turndamping` (live, with
-  damage), at `s < 100` — 10; with the airbrakes pressed — `braketurndamping`. Plus a weak force turning the
+  damage), at `s < 100` with a brake pressed — 10; with the airbrakes pressed — `braketurndamping`. Plus a weak force turning the
   velocity toward the nose: `(nose·|v| − v) / (airbrakeslide + (L + R)·0.25)`, where L, R = 256 with the left / right
-  brake pressed. How well the lateral friction matches the recording has not been verified yet — on the track it is masked by banked turns (OQ-2).
+  brake pressed. Verified by recordings [✓ recording, PAL, ship without upgrades]: without brakes `D` = 54.7 ± 0.3 (54.5 + 1/airbrakeslide), independent of speed from 30 to 1048 km/h
+  (model deviation ≈ 1.6 % of the peak sideways drift). After a series of wall hits `D` drops (×0.91 after ≈ 15 hits in a row,
+  ×0.79 after 117), consistent with "full damage ×0.8". Without a brake pressed, at low speed `D` stays ≈ 55;
+  the "10 at `s < 100`" rule applies to a pressed brake. The brake branch with steering is not confirmed: `D` ≈ 45 was obtained instead of the expected ≈ 30 [?].
+- **Coasting, acceleration and braking from recordings** [✓ recording, PAL, ship without upgrades]: coasting is a pure exponential, `k` = 0.0763 /s (time constant 13.1 s)
+  from 34 to 1011 km/h, which matches `×0.05` at V = 1049. Acceleration from rest at full throttle, no steering: to 100 / 300 / 500 / 800 / 930 km/h
+  in 0.5 / 1.8 / 2.6 / 4.1 / 7.0 s. This curve results only if V = 936.7 (= 0.893 · 1049) is used in the thrust; with V = 1049 the calculation gives
+  4.5 s to 930 km/h. Thrust and coasting behave as if V were different (OQ-60). Full braking with both airbrakes: deceleration =
+  `(brake_l + brake_r)/m` plus coasting (measured / calculated = 1.01); below 100 km/h with a brake the speed dies out with `k` ≈ 0.77 /s.
 - Under the effect of AG Stinger the longitudinal drag is multiplied by `(1 − t/100)·10` (t — frames since the hit, WPN-14).
 - **Nose reaction to touching a surface** (parameters `ndmaxdegrees`, `ndturnforce`, SHIP-3): while the ship is in the air, the threshold is the value
   from the file (300 for all teams, 1 for the escape pod); on contact with a surface it is recomputed every frame from the angle between
@@ -109,6 +117,9 @@ and the AI** [code]. Weak ones exist only on Florion Height (all 6 layouts) and 
 of the three examined [✓ data from 18 `.TRI`]. Boosters are polygon triggers, not `speed`-type surfaces (PHY-17).
 The addition applies **every substep** while the ship is on the booster: for the human the speed grows by 5–6 % per frame
 for several frames in a row (1.03² ≈ 1.061 minus ordinary drag) [✓ all 15 recordings].
+
+**Direction [✓ player observation, PAL].** A booster has a direction: driving over it against that direction does not
+speed the ship up, it **brakes** it. The surge is short: the extra speed is not held after the booster.
 
 ## PHY-12. External motion control [?]
 There are two modes in which the ship's motion is set not by physics:

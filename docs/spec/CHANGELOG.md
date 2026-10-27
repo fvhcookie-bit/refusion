@@ -9,6 +9,7 @@ Release (set the `spec-r1` tag) only after manual review by a second person, not
 The automatic check (`docs/process/check_spec.py`) has passed.
 
 ### 2026-10-26 (not manually reviewed)
+- Addition 2026-10-28 (stand recordings and player observations): PHY-11 — a booster has a direction (against it, it brakes); WPN-16 — Turbo acts like a track booster, but stronger; new OQ-60 — two speed levels on a straight (≈936.6 and ≈1047 km/h), cause unknown.
 - Correction 2026-10-28: WPN-3 — in Time Trial the ship is **given** the Turbo weapon on every crossing of the finish line (the burst does not fire by itself); the player has to use it.
 - WPN-22 extended from a recording of PAL races (weapon granted on a modified game, hits identified by the drop in the opponent's shield): about 25 shots per second, the charge is used up in under a second, damage to the opponent's shield about 0.2 % per hit, hits up to ~400 units of distance, minor stability damage from some hits; the effect of hits on opponents' speed and line is not confirmed (small sample). OQ-31 narrowed.
 
