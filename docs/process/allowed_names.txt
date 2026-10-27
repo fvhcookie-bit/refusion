@@ -1,0 +1,41 @@
+# Names that look code-shaped but come from the game's DATA files or from the screen,
+# so they are allowed in spec/. One per line; a trailing "_" allows any name with that prefix.
+# Every line must say where the name comes from.
+
+# PILOTS/SETUPS/*.INI keys (FMT-6)
+givenGrudge         # pilot INI key
+agressionCalming    # pilot INI key
+skillLevel          # pilot INI key
+gridRating          # pilot INI key
+basicSpeed          # pilot INI key
+lookAheadFactor     # pilot INI key
+minTurn             # pilot INI key
+airbrakeTurn        # pilot INI key
+brakeTurn           # pilot INI key
+steeringFactor      # pilot INI key
+slowDown            # pilot INI key
+sharpBend           # pilot INI key
+
+# SHIPS.INI keys (SHIP-3)
+collisionTiming     # SHIPS.INI key
+shield_enginePct    # SHIPS.INI key
+shield_noseconePct  # SHIPS.INI key
+shield_stabilityPct # SHIPS.INI key
+shield_airbrakesPct # SHIPS.INI key
+mdamage_decreasePct # SHIPS.INI key
+horizontalStiffy    # SHIPS.INI key (cam*_horizontalStiffy)
+verticalStiffy      # SHIPS.INI key (cam*_verticalStiffy)
+
+# WEAPONSTATS.INI key prefixes (WPN-15)
+Dam_                # WEAPONSTATS.INI
+Spd_                # WEAPONSTATS.INI
+Force_              # WEAPONSTATS.INI
+LockDist_           # WEAPONSTATS.INI
+
+# Process vocabulary (not from the original)
+check_spec.py       # this repository's own checker
+декомпилированного  # used in the rule "no decompiled code here"
+ReFusion            # this project's own name
+
+# Data values in the game files (FMT-18)
+0x12345678          # placeholder value in ship mesh packets

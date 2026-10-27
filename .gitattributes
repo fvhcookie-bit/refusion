@@ -1,0 +1,5 @@
+# The repository stores text with LF line endings; on Windows git converts them to CRLF in the working copy and
+# back on commit. Without this, an editor that saves CRLF makes every line show as changed.
+* text=auto
+*.p2s binary
+*.ps2 binary
